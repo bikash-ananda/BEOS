@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+apps/api/.env
+apps/web/.env
+apps/web/.env.local
+
+# Build outputs
+dist/
+.next/
+out/
+coverage/
+
+# Uploads (Wave 3+)
+uploads/
+apps/api/uploads/
+
+# Logs and OS
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+
+# Test / cache
+.turbo/
+*.tsbuildinfo

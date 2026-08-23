@@ -38,3 +38,5 @@ apps/api/prisma/*.db-journal
 # Test / cache
 .turbo/
 *.tsbuildinfo
+
+.pnpm-store/

@@ -18,11 +18,12 @@ BEOS is a pnpm modular-monolith workspace:
 
 ## Local setup
 
-Install dependencies and create the API environment file:
+Install dependencies and create the API and web environment files:
 
 ```sh
 pnpm install
 cp .env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
 
 Start PostgreSQL and apply existing migrations:
@@ -47,6 +48,11 @@ Local endpoints:
 - API documentation: http://localhost:3001/api/docs
 
 PostgreSQL is exposed only on `127.0.0.1:5432` for local development.
+
+`WEB_ORIGIN` is the API's allowlist for credentialed browser requests.
+`BACKEND_URL` is server-only Next.js configuration used to proxy `/api`
+requests to the NestJS service, keeping authentication cookies same-origin in
+the browser. Change both values to match the deployed web and API origins.
 
 ## Verification
 
@@ -79,6 +85,10 @@ pnpm bootstrap:admin
 
 The bootstrap command refuses to overwrite an existing account. Do not place
 the administrator password in a tracked environment file.
+
+After signing in, administrators can create branches and departments, define
+custom roles, generate one-time invitation and password-reset links, update
+employee assignments, and disable accounts from `/admin`.
 
 ## Current work
 

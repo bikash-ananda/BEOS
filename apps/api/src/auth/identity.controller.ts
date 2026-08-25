@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -27,6 +28,12 @@ export class IdentityController {
     private readonly invitations: InvitationService,
     private readonly passwordResets: PasswordResetService,
   ) {}
+
+  @RequirePermissions(PERMISSION_KEYS.invitationsManage)
+  @Get('invitations')
+  listInvitations() {
+    return this.invitations.list();
+  }
 
   @RequirePermissions(PERMISSION_KEYS.invitationsManage)
   @Post('invitations')

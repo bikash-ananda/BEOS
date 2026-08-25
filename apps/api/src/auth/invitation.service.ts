@@ -31,6 +31,37 @@ export class InvitationService {
     private readonly audit: AuditService,
   ) {}
 
+  async list() {
+    const invitations = await this.prisma.invitation.findMany({
+      select: {
+        id: true,
+        email: true,
+        expiresAt: true,
+        acceptedAt: true,
+        revokedAt: true,
+        createdAt: true,
+        branch: { select: { id: true, name: true, code: true } },
+        department: { select: { id: true, name: true, code: true } },
+        invitedBy: { select: { id: true, fullName: true } },
+        roles: { include: { role: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+    const now = Date.now();
+    return invitations.map((invitation) => ({
+      ...invitation,
+      roles: invitation.roles.map(({ role }) => role),
+      status: invitation.acceptedAt
+        ? 'accepted'
+        : invitation.revokedAt
+          ? 'revoked'
+          : invitation.expiresAt.getTime() <= now
+            ? 'expired'
+            : 'pending',
+    }));
+  }
+
   async create(
     input: CreateInvitationDto,
     invitedById: string,

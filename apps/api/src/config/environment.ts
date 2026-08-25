@@ -12,6 +12,11 @@ const environmentSchema = z.object({
   API_PORT: z.coerce.number().int().min(1).max(65_535).default(3001),
   WEB_ORIGIN: z.string().default('http://localhost:3000'),
   FILE_STORAGE_PATH: z.string().min(1).default('./uploads'),
+  AUTH_ACCESS_SECRET: z.string().min(32),
+  AUTH_ACCESS_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
+  AUTH_REFRESH_TTL_DAYS: z.coerce.number().int().min(1).default(30),
+  AUTH_INVITE_TTL_HOURS: z.coerce.number().int().min(1).default(72),
+  AUTH_RESET_TTL_HOURS: z.coerce.number().int().min(1).default(2),
   AUTH_COOKIE_SECURE: booleanFromEnvironment.default(false),
   AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
 });
@@ -46,6 +51,11 @@ export function validateEnvironment(
     DATABASE_URL:
       config.DATABASE_URL ??
       (config.NODE_ENV === 'test' ? testDatabaseUrl : undefined),
+    AUTH_ACCESS_SECRET:
+      config.AUTH_ACCESS_SECRET ??
+      (config.NODE_ENV === 'test'
+        ? 'test-only-access-secret-at-least-32-characters'
+        : undefined),
   };
   const result = environmentSchema.safeParse(normalizedConfig);
 
@@ -60,6 +70,13 @@ export function validateEnvironment(
     !result.data.AUTH_COOKIE_SECURE
   ) {
     throw new Error('AUTH_COOKIE_SECURE must be true in production');
+  }
+
+  if (
+    result.data.NODE_ENV === 'production' &&
+    result.data.AUTH_ACCESS_SECRET.includes('change-me')
+  ) {
+    throw new Error('AUTH_ACCESS_SECRET must be replaced in production');
   }
 
   return result.data;

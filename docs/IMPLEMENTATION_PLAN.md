@@ -41,15 +41,15 @@ code and verification pass.
 
 ## Iteration 2 — Identity and access
 
-- [ ] Design and migrate invitations and revocable multi-device sessions.
-- [ ] Add the first-administrator bootstrap command and idempotent RBAC seed.
-- [ ] Implement invite acceptance, login, refresh rotation, logout, logout-all,
+- [x] Design and migrate invitations and revocable multi-device sessions.
+- [x] Add the first-administrator bootstrap command and idempotent RBAC seed.
+- [x] Implement invite acceptance, login, refresh rotation, logout, logout-all,
   current-user, password change, and administrator password reset.
-- [ ] Add backend permission guards and audit identity/security events.
+- [x] Add backend permission guards and audit identity/security events.
 - [ ] Add protected web routes and real session-aware navigation.
 - [ ] Add administrator workflows for users, roles, permissions, branches, and
   departments.
-- [ ] Verify invitation expiry, refresh replay rejection, session revocation,
+- [x] Verify invitation expiry, refresh replay rejection, session revocation,
   disabled accounts, and 401/403 boundaries.
 
 ## Iteration 3 — Dynamic workspace shell

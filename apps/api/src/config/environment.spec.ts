@@ -3,6 +3,7 @@ import { parseWebOrigins, validateEnvironment } from './environment';
 describe('environment configuration', () => {
   const baseEnvironment = {
     DATABASE_URL: 'postgresql://beos:beos@localhost:5432/beos',
+    AUTH_ACCESS_SECRET: 'test-only-access-secret-at-least-32-characters',
   };
 
   it('applies safe local defaults', () => {

@@ -22,37 +22,45 @@ model Branch {
   expenses    Expense[]
   employees   Employee[]
   devices     Device[]
+  invitations Invitation[]
 }
 
 model Department {
-  id        String   @id @default(cuid())
-  name      String
-  code      String
-  branchId  String
-  branch    Branch   @relation(fields: [branchId], references: [id])
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     User[]
-  employees Employee[]
+  id          String       @id @default(cuid())
+  name        String
+  code        String
+  branchId    String
+  branch      Branch       @relation(fields: [branchId], references: [id])
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  employees   Employee[]
+  invitations Invitation[]
 
   @@unique([branchId, code])
 }
 
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
-  passwordHash String
-  fullName     String
-  isActive     Boolean     @default(true)
-  branchId     String?
-  branch       Branch?     @relation(fields: [branchId], references: [id])
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  roles        UserRole[]
-  auditLogs    AuditLog[]
+  id                    String          @id @default(cuid())
+  email                 String          @unique
+  passwordHash          String
+  fullName              String
+  isActive              Boolean         @default(true)
+  branchId              String?
+  branch                Branch?         @relation(fields: [branchId], references: [id])
+  departmentId          String?
+  department            Department?     @relation(fields: [departmentId], references: [id])
+  lastLoginAt           DateTime?
+  passwordChangedAt     DateTime        @default(now())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  roles                 UserRole[]
+  auditLogs             AuditLog[]
+  sessions              AuthSession[]
+  invitationsSent       Invitation[]    @relation("InvitationCreator")
+  passwordResets        PasswordReset[] @relation("PasswordResetUser")
+  passwordResetsCreated PasswordReset[] @relation("PasswordResetCreator")
 }
 
 model Role {
@@ -63,6 +71,7 @@ model Role {
   updatedAt   DateTime         @updatedAt
   users       UserRole[]
   permissions RolePermission[]
+  invitations InvitationRole[]
 }
 
 model Permission {
@@ -103,48 +112,110 @@ model AuditLog {
   createdAt  DateTime @default(now())
 }
 
+model Invitation {
+  id           String           @id @default(cuid())
+  email        String
+  tokenHash    String           @unique
+  branchId     String?
+  branch       Branch?          @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?      @relation(fields: [departmentId], references: [id])
+  invitedById  String
+  invitedBy    User             @relation("InvitationCreator", fields: [invitedById], references: [id])
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime         @default(now())
+  roles        InvitationRole[]
+
+  @@index([email, expiresAt])
+  @@index([invitedById])
+}
+
+model InvitationRole {
+  invitationId String
+  roleId       String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([invitationId, roleId])
+}
+
+model AuthSession {
+  id        String    @id @default(cuid())
+  familyId  String
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([familyId])
+  @@index([userId, revokedAt])
+}
+
+model PasswordReset {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  userId      String
+  user        User      @relation("PasswordResetUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User      @relation("PasswordResetCreator", fields: [createdById], references: [id])
+  expiresAt   DateTime
+  usedAt      DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@index([createdById])
+}
+
 // ===== PHASE 2: ACCOUNTING =====
 model Account {
-  id            String   @id @default(cuid())
-  code          String   @unique
-  name          String
-  description   String?
-  type          String   // Asset, Liability, Equity, Revenue, Expense
-  balance       Decimal  @default(0)
-  isActive      Boolean  @default(true)
-  branchId      String
-  branch        Branch   @relation(fields: [branchId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  entries       GLEntry[]
-  invoices      Invoice[]
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  type        String // Asset, Liability, Equity, Revenue, Expense
+  balance     Decimal   @default(0)
+  isActive    Boolean   @default(true)
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  entries     GLEntry[]
+  invoices    Invoice[]
 }
 
 model Invoice {
-  id            String   @id @default(cuid())
-  invoiceNo     String   @unique
-  customerId    String?
-  amount        Decimal
-  amountPaid    Decimal  @default(0)
-  status        String   // Draft, Issued, Paid, Overdue, Cancelled
-  issueDate     DateTime
-  dueDate       DateTime
-  description   String?
-  accountId     String
-  account       Account  @relation(fields: [accountId], references: [id])
-  branchId      String
-  branch        Branch   @relation(fields: [branchId], references: [id])
-  createdBy     String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  payments      Payment[]
-  items         InvoiceItem[]
+  id          String        @id @default(cuid())
+  invoiceNo   String        @unique
+  customerId  String?
+  amount      Decimal
+  amountPaid  Decimal       @default(0)
+  status      String // Draft, Issued, Paid, Overdue, Cancelled
+  issueDate   DateTime
+  dueDate     DateTime
+  description String?
+  accountId   String
+  account     Account       @relation(fields: [accountId], references: [id])
+  branchId    String
+  branch      Branch        @relation(fields: [branchId], references: [id])
+  createdBy   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  payments    Payment[]
+  items       InvoiceItem[]
 }
 
 model InvoiceItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   invoiceId String
-  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   itemName  String
   quantity  Int
   unitPrice Decimal
@@ -157,25 +228,25 @@ model Payment {
   invoice       Invoice  @relation(fields: [invoiceId], references: [id])
   amount        Decimal
   paymentDate   DateTime
-  paymentMethod String   // Cash, Check, Bank, Online
+  paymentMethod String // Cash, Check, Bank, Online
   referenceNo   String?
   notes         String?
   createdAt     DateTime @default(now())
 }
 
 model Expense {
-  id            String   @id @default(cuid())
-  expenseNo     String   @unique
-  description   String
-  amount        Decimal
-  category      String   // Travel, Office, Equipment, etc.
-  status        String   // Pending, Approved, Rejected, Paid
-  claimedBy     String
-  approvedBy    String?
-  branchId      String
-  branch        Branch   @relation(fields: [branchId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(cuid())
+  expenseNo   String   @unique
+  description String
+  amount      Decimal
+  category    String // Travel, Office, Equipment, etc.
+  status      String // Pending, Approved, Rejected, Paid
+  claimedBy   String
+  approvedBy  String?
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model GLEntry {
@@ -191,75 +262,75 @@ model GLEntry {
 
 // ===== PHASE 3: PAYROLL =====
 model Employee {
-  id            String   @id @default(cuid())
-  empNo         String   @unique
-  firstName     String
-  lastName      String
-  email         String   @unique
-  phone         String?
-  dateOfBirth   DateTime?
-  joinDate      DateTime
-  status        String   // Active, OnLeave, Terminated
-  position      String
-  salary        Decimal
-  salaryType    String   // Monthly, Hourly, Contract
-  branchId      String
-  branch        Branch   @relation(fields: [branchId], references: [id])
-  departmentId  String
-  department    Department @relation(fields: [departmentId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  payslips      Payslip[]
-  deductions    Deduction[]
-  leaves        LeaveRequest[]
+  id           String         @id @default(cuid())
+  empNo        String         @unique
+  firstName    String
+  lastName     String
+  email        String         @unique
+  phone        String?
+  dateOfBirth  DateTime?
+  joinDate     DateTime
+  status       String // Active, OnLeave, Terminated
+  position     String
+  salary       Decimal
+  salaryType   String // Monthly, Hourly, Contract
+  branchId     String
+  branch       Branch         @relation(fields: [branchId], references: [id])
+  departmentId String
+  department   Department     @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  payslips     Payslip[]
+  deductions   Deduction[]
+  leaves       LeaveRequest[]
 }
 
 model Payslip {
-  id            String   @id @default(cuid())
-  employeeId    String
-  employee      Employee @relation(fields: [employeeId], references: [id])
-  month         Int      // 1-12
-  year          Int
-  baseSalary    Decimal
+  id             String             @id @default(cuid())
+  employeeId     String
+  employee       Employee           @relation(fields: [employeeId], references: [id])
+  month          Int // 1-12
+  year           Int
+  baseSalary     Decimal
   totalAllowance Decimal
   totalDeduction Decimal
-  netSalary     Decimal
-  status        String   // Draft, Finalized, Paid
-  paymentDate   DateTime?
-  createdAt     DateTime @default(now())
-  deductions    PayslipDeduction[]
+  netSalary      Decimal
+  status         String // Draft, Finalized, Paid
+  paymentDate    DateTime?
+  createdAt      DateTime           @default(now())
+  deductions     PayslipDeduction[]
 
   @@unique([employeeId, month, year])
 }
 
 model PayslipDeduction {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   payslipId String
-  payslip   Payslip  @relation(fields: [payslipId], references: [id], onDelete: Cascade)
-  type      String   // Tax, Insurance, Pension, Other
+  payslip   Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  type      String // Tax, Insurance, Pension, Other
   amount    Decimal
 }
 
 model Deduction {
-  id        String   @id @default(cuid())
+  id         String   @id @default(cuid())
   employeeId String
-  employee  Employee @relation(fields: [employeeId], references: [id])
-  type      String   // Tax, Insurance, Pension, Other
-  amount    Decimal
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  type       String // Tax, Insurance, Pension, Other
+  amount     Decimal
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
 
 model LeaveRequest {
   id         String   @id @default(cuid())
   employeeId String
   employee   Employee @relation(fields: [employeeId], references: [id])
-  leaveType  String   // Annual, Sick, Personal, Unpaid
+  leaveType  String // Annual, Sick, Personal, Unpaid
   startDate  DateTime
   endDate    DateTime
   days       Int
   reason     String?
-  status     String   // Pending, Approved, Rejected
+  status     String // Pending, Approved, Rejected
   approvedBy String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -267,17 +338,17 @@ model LeaveRequest {
 
 // ===== PHASE 4: INVENTORY =====
 model Product {
-  id           String   @id @default(cuid())
-  sku          String   @unique
+  id           String          @id @default(cuid())
+  sku          String          @unique
   name         String
   description  String?
   category     String
   unitPrice    Decimal
   costPrice    Decimal
-  reorderLevel Int      @default(10)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  reorderLevel Int             @default(10)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   stocks       Stock[]
   movements    StockMovement[]
 }
@@ -293,27 +364,27 @@ model Warehouse {
 }
 
 model Stock {
-  id          String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-  quantity    Int
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  warehouseId     String
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id])
+  quantity        Int
   lastRestockDate DateTime?
-  updatedAt   DateTime @updatedAt
+  updatedAt       DateTime  @updatedAt
 
   @@unique([productId, warehouseId])
 }
 
 model StockMovement {
-  id          String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  type        String   // Inbound, Outbound, Adjustment
-  quantity    Int
-  reference   String?  // PO, SO, Inventory ID
-  notes       String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String // Inbound, Outbound, Adjustment
+  quantity  Int
+  reference String? // PO, SO, Inventory ID
+  notes     String?
+  createdAt DateTime @default(now())
 }
 
 // ===== PHASE 5: E-COMMERCE =====
@@ -325,75 +396,75 @@ model Customer {
   address   String?
   city      String?
   country   String?
-  status    String   // Active, Inactive, Blocked
+  status    String // Active, Inactive, Blocked
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
 }
 
 model Order {
-  id            String   @id @default(cuid())
-  orderNo       String   @unique
+  id            String         @id @default(cuid())
+  orderNo       String         @unique
   customerId    String
-  customer      Customer @relation(fields: [customerId], references: [id])
+  customer      Customer       @relation(fields: [customerId], references: [id])
   totalAmount   Decimal
   taxAmount     Decimal
   shippingCost  Decimal
-  status        String   // Pending, Confirmed, Shipped, Delivered, Cancelled
-  paymentStatus String   // Unpaid, Partial, Paid
-  orderDate     DateTime @default(now())
+  status        String // Pending, Confirmed, Shipped, Delivered, Cancelled
+  paymentStatus String // Unpaid, Partial, Paid
+  orderDate     DateTime       @default(now())
   shippedDate   DateTime?
   deliveredDate DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   items         OrderItem[]
   payments      OrderPayment[]
 }
 
 model OrderItem {
-  id       String  @id @default(cuid())
-  orderId  String
-  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  sku      String
-  quantity Int
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sku       String
+  quantity  Int
   unitPrice Decimal
-  total    Decimal
+  total     Decimal
 }
 
 model OrderPayment {
-  id         String   @id @default(cuid())
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  amount     Decimal
-  method     String   // Card, Bank, Cash, Online
-  status     String   // Pending, Confirmed, Failed, Refunded
-  paidAt     DateTime?
-  createdAt  DateTime @default(now())
+  id        String    @id @default(cuid())
+  orderId   String
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount    Decimal
+  method    String // Card, Bank, Cash, Online
+  status    String // Pending, Confirmed, Failed, Refunded
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
 }
 
 // ===== PHASE 6: AI AGENTS =====
 model AIAgent {
-  id           String   @id @default(cuid())
-  name         String
-  description  String?
-  model        String   // gpt-4, claude, etc.
-  status       String   // Active, Inactive, Training
-  purpose      String?  // Accounting, Sales, Support, etc.
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  tasks        AITask[]
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  model       String // gpt-4, claude, etc.
+  status      String // Active, Inactive, Training
+  purpose     String? // Accounting, Sales, Support, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       AITask[]
 }
 
 model AITask {
-  id           String   @id @default(cuid())
-  agentId      String
-  agent        AIAgent  @relation(fields: [agentId], references: [id])
-  title        String
-  description  String?
-  status       String   // Pending, Running, Completed, Failed
-  result       String?
-  createdAt    DateTime @default(now())
-  completedAt  DateTime?
+  id            String           @id @default(cuid())
+  agentId       String
+  agent         AIAgent          @relation(fields: [agentId], references: [id])
+  title         String
+  description   String?
+  status        String // Pending, Running, Completed, Failed
+  result        String?
+  createdAt     DateTime         @default(now())
+  completedAt   DateTime?
   conversations AIConversation[]
 }
 
@@ -401,7 +472,7 @@ model AIConversation {
   id        String   @id @default(cuid())
   taskId    String
   task      AITask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  role      String   // user, assistant
+  role      String // user, assistant
   content   String
   tokens    Int?
   createdAt DateTime @default(now())
@@ -409,30 +480,30 @@ model AIConversation {
 
 // ===== PHASE 7: IOT =====
 model Device {
-  id        String   @id @default(cuid())
-  deviceId  String   @unique
-  name      String
-  type      String   // Sensor, Controller, Gateway, etc.
-  status    String   // Online, Offline, Error, Maintenance
-  location  String?
-  branchId  String
-  branch    Branch   @relation(fields: [branchId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  sensors   Sensor[]
+  id         String        @id @default(cuid())
+  deviceId   String        @unique
+  name       String
+  type       String // Sensor, Controller, Gateway, etc.
+  status     String // Online, Offline, Error, Maintenance
+  location   String?
+  branchId   String
+  branch     Branch        @relation(fields: [branchId], references: [id])
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  sensors    Sensor[]
   dataPoints DataPoint[]
-  alerts    DeviceAlert[]
+  alerts     DeviceAlert[]
 }
 
 model Sensor {
-  id       String  @id @default(cuid())
-  deviceId String
-  device   Device  @relation(fields: [deviceId], references: [id])
-  name     String
-  type     String  // Temperature, Humidity, Pressure, Motion, etc.
-  unit     String  // Celsius, %, Pa, etc.
-  minValue Decimal?
-  maxValue Decimal?
+  id         String      @id @default(cuid())
+  deviceId   String
+  device     Device      @relation(fields: [deviceId], references: [id])
+  name       String
+  type       String // Temperature, Humidity, Pressure, Motion, etc.
+  unit       String // Celsius, %, Pa, etc.
+  minValue   Decimal?
+  maxValue   Decimal?
   dataPoints DataPoint[]
 }
 
@@ -448,12 +519,12 @@ model DataPoint {
 }
 
 model DeviceAlert {
-  id        String   @id @default(cuid())
-  deviceId  String
-  device    Device   @relation(fields: [deviceId], references: [id])
-  type      String   // Warning, Critical, Info
-  message   String
-  status    String   // Active, Acknowledged, Resolved
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  deviceId   String
+  device     Device    @relation(fields: [deviceId], references: [id])
+  type       String // Warning, Critical, Info
+  message    String
+  status     String // Active, Acknowledged, Resolved
+  createdAt  DateTime  @default(now())
   resolvedAt DateTime?
 }

@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+import cookieParser from 'cookie-parser';
+import { ACCESS_COOKIE } from '../auth/auth.constants';
 import { ApiExceptionFilter } from '../common/filters/api-exception.filter';
 import { Environment, parseWebOrigins } from '../config/environment';
 
@@ -11,6 +13,7 @@ export function configureApp(app: INestApplication): void {
   const origins = parseWebOrigins(config.get('WEB_ORIGIN', { infer: true }));
 
   app.useLogger(app.get(Logger));
+  app.use(cookieParser());
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
   app.enableCors({ origin: origins, credentials: true });
@@ -27,6 +30,7 @@ export function configureApp(app: INestApplication): void {
     .setTitle('BEOS API')
     .setDescription('Bikash Engineering Operating System API')
     .setVersion('1.0')
+    .addCookieAuth(ACCESS_COOKIE)
     .build();
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api/docs', app, document);

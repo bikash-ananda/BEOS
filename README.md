@@ -59,6 +59,27 @@ pnpm verify
 This checks formatting, lint, unit and API tests, the Prisma schema, and both
 production builds.
 
+## First administrator
+
+Seed the managed system roles and permissions at any time with:
+
+```sh
+pnpm rbac:seed
+```
+
+Create the first administrator once by supplying credentials through temporary
+environment variables:
+
+```sh
+BOOTSTRAP_ADMIN_EMAIL="admin@example.com" \
+BOOTSTRAP_ADMIN_NAME="Administrator" \
+BOOTSTRAP_ADMIN_PASSWORD="replace-with-a-strong-password" \
+pnpm bootstrap:admin
+```
+
+The bootstrap command refuses to overwrite an existing account. Do not place
+the administrator password in a tracked environment file.
+
 ## Current work
 
 Phase 1 builds Identity & Access and the Company Workspace before later

@@ -81,7 +81,7 @@ Backend:
 
 Database:
 
-- PostgreSQL 18
+- PostgreSQL 16
 - Prisma ORM
 
 Package manager:

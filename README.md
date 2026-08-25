@@ -1,54 +1,66 @@
 # BEOS — Bikash Engineering Operating System
 
-Digital operating system for **Bikash Engineering Pvt. Ltd.** (Pokhara, Nepal).
+Digital operating system for **Bikash Engineering Pvt. Ltd.** in Pokhara,
+Nepal.
 
-This repository is a **pnpm monorepo**:
+BEOS is a pnpm modular-monolith workspace:
 
-- `apps/api` — NestJS API (port **3001**)
-- `apps/web` — Next.js web app (port **3000**)
-- `infra` — Docker Compose for local PostgreSQL
-- `docs` — Product and Phase 1 specifications
+- `apps/api` — NestJS API on port 3001
+- `apps/web` — Next.js application on port 3000
+- `infra` — local PostgreSQL infrastructure
+- `docs` — product decisions and implementation progress
 
-## What you need on this computer
+## Requirements
 
-1. **Node.js** 22 or newer
-2. **Git**
-3. **pnpm** (installed for this project)
-4. **Docker Desktop** — required to run PostgreSQL. Install from [Docker Desktop](https://www.docker.com/products/docker-desktop/), start Docker, then run the database steps below.
+- Node.js 22 or newer
+- pnpm 10.34.5
+- Docker Engine or Docker Desktop with Docker Compose
 
-## How to start the website and API (no database required)
+## Local setup
 
-Open PowerShell in this folder.
+Install dependencies and create the API environment file:
 
-Terminal 1 — API:
-
-```powershell
-pnpm --filter api start:dev
+```sh
+pnpm install
+cp .env.example apps/api/.env
 ```
 
-Terminal 2 — website:
+Start PostgreSQL and apply existing migrations:
 
-```powershell
-pnpm --filter web dev
+```sh
+pnpm db:up
+pnpm db:migrate
 ```
 
-Then open:
+Run the API and web application in separate terminals:
 
-- Website: http://localhost:3000
-- API health: http://localhost:3001/health
-
-## How to start PostgreSQL (after Docker Desktop is installed)
-
-```powershell
-docker compose -f infra/docker-compose.yml up -d
-pnpm --filter api exec prisma migrate dev --name init_identity
+```sh
+pnpm dev:api
+pnpm dev:web
 ```
 
-That command creates the Wave 0 identity tables (users, roles, permissions, branches, departments, audit log).
+Local endpoints:
 
-## Wave 0 status
+- Web application: http://localhost:3000
+- API liveness: http://localhost:3001/api/v1/health
+- API database readiness: http://localhost:3001/api/v1/ready
+- API documentation: http://localhost:3001/api/docs
 
-- Monorepo, NestJS, Next.js, and Prisma **schema** are in place.
-- Login and Company Workspace come in later waves.
-- Mobile is not in this phase.
-- PostgreSQL migration is waiting on Docker Desktop on this computer.
+PostgreSQL is exposed only on `127.0.0.1:5432` for local development.
+
+## Verification
+
+After the environment file and database are available, run:
+
+```sh
+pnpm verify
+```
+
+This checks formatting, lint, unit and API tests, the Prisma schema, and both
+production builds.
+
+## Current work
+
+Phase 1 builds Identity & Access and the Company Workspace before later
+business modules. Progress, decisions, and the next verified slice live in
+[`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).

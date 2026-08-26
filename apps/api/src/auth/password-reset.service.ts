@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuditService } from '../audit/audit.service';
 import { Environment } from '../config/environment';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { AuthTokenService } from './auth-token.service';
 import { CompletePasswordResetDto } from './dto';
 import { PasswordService } from './password.service';
@@ -27,6 +28,7 @@ export class PasswordResetService {
     private readonly passwords: PasswordService,
     private readonly tokens: AuthTokenService,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async create(emailInput: string, createdById: string, ipAddress?: string) {
@@ -122,13 +124,27 @@ export class PasswordResetService {
         where: { userId: reset.userId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
-    });
-    await this.audit.record({
-      action: 'identity.password_reset_completed',
-      entityType: 'PasswordReset',
-      entityId: reset.id,
-      userId: reset.userId,
-      ipAddress,
+      await this.notifications.create(
+        {
+          userId: reset.userId,
+          type: 'SECURITY',
+          title: 'Password reset completed',
+          message: 'Your password was reset and previous sessions were closed.',
+          href: '/',
+          dedupeKey: `password-reset:${reset.id}:completed`,
+        },
+        transaction,
+      );
+      await this.audit.record(
+        {
+          action: 'identity.password_reset_completed',
+          entityType: 'PasswordReset',
+          entityId: reset.id,
+          userId: reset.userId,
+          ipAddress,
+        },
+        transaction,
+      );
     });
   }
 

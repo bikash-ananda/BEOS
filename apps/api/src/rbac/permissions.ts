@@ -6,6 +6,8 @@ export const PERMISSION_KEYS = {
   departmentsManage: 'departments.manage',
   invitationsManage: 'invitations.manage',
   auditRead: 'audit.read',
+  filesRead: 'files.read',
+  filesUpload: 'files.upload',
 } as const;
 
 export type PermissionKey =
@@ -25,6 +27,8 @@ export const SYSTEM_PERMISSIONS: ReadonlyArray<{
   { key: PERMISSION_KEYS.departmentsManage, description: 'Manage departments' },
   { key: PERMISSION_KEYS.invitationsManage, description: 'Invite employees' },
   { key: PERMISSION_KEYS.auditRead, description: 'Read audit records' },
+  { key: PERMISSION_KEYS.filesRead, description: 'Read workspace files' },
+  { key: PERMISSION_KEYS.filesUpload, description: 'Upload workspace files' },
 ];
 
 const allPermissions = SYSTEM_PERMISSIONS.map(({ key }) => key);
@@ -51,13 +55,19 @@ export const SYSTEM_ROLES: ReadonlyArray<{
       PERMISSION_KEYS.workspaceAccess,
       PERMISSION_KEYS.usersManage,
       PERMISSION_KEYS.invitationsManage,
+      PERMISSION_KEYS.filesRead,
+      PERMISSION_KEYS.filesUpload,
     ],
   },
   ...['Accountant', 'Engineer', 'Storekeeper', 'Technician', 'HR', 'Sales'].map(
     (name) => ({
       name,
       description: `${name} workspace access`,
-      permissions: [PERMISSION_KEYS.workspaceAccess],
+      permissions: [
+        PERMISSION_KEYS.workspaceAccess,
+        PERMISSION_KEYS.filesRead,
+        PERMISSION_KEYS.filesUpload,
+      ],
     }),
   ),
 ];

@@ -12,6 +12,12 @@ const environmentSchema = z.object({
   API_PORT: z.coerce.number().int().min(1).max(65_535).default(3001),
   WEB_ORIGIN: z.string().default('http://localhost:3000'),
   FILE_STORAGE_PATH: z.string().min(1).default('./uploads'),
+  FILE_MAX_SIZE_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1_024)
+    .max(26_214_400)
+    .default(10_485_760),
   AUTH_ACCESS_SECRET: z.string().min(32),
   AUTH_ACCESS_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
   AUTH_REFRESH_TTL_DAYS: z.coerce.number().int().min(1).default(30),

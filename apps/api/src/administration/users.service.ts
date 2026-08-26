@@ -10,6 +10,7 @@ import { AuditService } from '../audit/audit.service';
 import type { AuthenticatedUser } from '../auth/auth-user';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListQueryDto } from '../common/dto/list-query.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UpdateUserDto } from './dto/administration.dto';
 
 const privilegedRoles = ['Super Admin', 'Director'];
@@ -19,6 +20,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async list(query: ListQueryDto) {
@@ -125,15 +127,28 @@ export class UsersService {
             data: { revokedAt: new Date() },
           });
         }
+        await this.notifications.create(
+          {
+            userId: id,
+            type: 'ACCOUNT',
+            title: 'Account access updated',
+            message: 'An administrator updated your BEOS access or assignment.',
+            href: '/',
+          },
+          transaction,
+        );
+        await this.audit.record(
+          {
+            action: 'identity.user_updated',
+            entityType: 'User',
+            entityId: id,
+            userId: actor.id,
+            ipAddress,
+            metadata: { fields: Object.keys(input) },
+          },
+          transaction,
+        );
         return user;
-      });
-      await this.audit.record({
-        action: 'identity.user_updated',
-        entityType: 'User',
-        entityId: id,
-        userId: actor.id,
-        ipAddress,
-        metadata: { fields: Object.keys(input) },
       });
       return updated;
     } catch (error) {

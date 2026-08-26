@@ -8,35 +8,37 @@ datasource db {
 }
 
 model Branch {
-  id          String       @id @default(cuid())
-  name        String
-  code        String       @unique
-  city        String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  departments Department[]
-  users       User[]
-  accounts    Account[]
-  invoices    Invoice[]
-  expenses    Expense[]
-  employees   Employee[]
-  devices     Device[]
-  invitations Invitation[]
+  id                   String                @id @default(cuid())
+  name                 String
+  code                 String                @unique
+  city                 String?
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  departments          Department[]
+  users                User[]
+  accounts             Account[]
+  invoices             Invoice[]
+  expenses             Expense[]
+  employees            Employee[]
+  devices              Device[]
+  invitations          Invitation[]
+  workspaceAttachments WorkspaceAttachment[]
 }
 
 model Department {
-  id          String       @id @default(cuid())
-  name        String
-  code        String
-  branchId    String
-  branch      Branch       @relation(fields: [branchId], references: [id])
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  users       User[]
-  employees   Employee[]
-  invitations Invitation[]
+  id                   String                @id @default(cuid())
+  name                 String
+  code                 String
+  branchId             String
+  branch               Branch                @relation(fields: [branchId], references: [id])
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  users                User[]
+  employees            Employee[]
+  invitations          Invitation[]
+  workspaceAttachments WorkspaceAttachment[]
 
   @@unique([branchId, code])
 }
@@ -61,6 +63,8 @@ model User {
   invitationsSent       Invitation[]    @relation("InvitationCreator")
   passwordResets        PasswordReset[] @relation("PasswordResetUser")
   passwordResetsCreated PasswordReset[] @relation("PasswordResetCreator")
+  notifications         Notification[]
+  uploadedFiles         FileRecord[]    @relation("FileUploader")
 }
 
 model Role {
@@ -110,6 +114,62 @@ model AuditLog {
   user       User?    @relation(fields: [userId], references: [id])
   ipAddress  String?
   createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  href      String?
+  dedupeKey String?   @unique
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+enum WorkspaceFileScope {
+  COMPANY
+  BRANCH
+  DEPARTMENT
+}
+
+model FileRecord {
+  id                   String                @id @default(cuid())
+  originalName         String
+  storageKey           String                @unique
+  mimeType             String
+  sizeBytes            Int
+  sha256               String
+  uploadedById         String
+  uploadedBy           User                  @relation("FileUploader", fields: [uploadedById], references: [id])
+  createdAt            DateTime              @default(now())
+  workspaceAttachments WorkspaceAttachment[]
+
+  @@index([uploadedById, createdAt])
+  @@index([createdAt])
+}
+
+model WorkspaceAttachment {
+  id           String             @id @default(cuid())
+  fileId       String             @unique
+  file         FileRecord         @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  scope        WorkspaceFileScope
+  branchId     String?
+  branch       Branch?            @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?        @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime           @default(now())
+
+  @@index([scope, createdAt])
+  @@index([branchId, createdAt])
+  @@index([departmentId, createdAt])
 }
 
 model Invitation {

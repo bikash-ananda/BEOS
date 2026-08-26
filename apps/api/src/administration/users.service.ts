@@ -9,7 +9,8 @@ import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import type { AuthenticatedUser } from '../auth/auth-user';
 import { PrismaService } from '../prisma/prisma.service';
-import { ListQueryDto, UpdateUserDto } from './dto/administration.dto';
+import { ListQueryDto } from '../common/dto/list-query.dto';
+import { UpdateUserDto } from './dto/administration.dto';
 
 const privilegedRoles = ['Super Admin', 'Director'];
 

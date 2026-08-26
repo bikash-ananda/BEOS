@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { apiFetch, jsonBody } from "@/lib/api";
+import { copyText } from "@/lib/clipboard";
 import type { Branch, Department, ManagedUser, Role } from "@/lib/types";
-import { Button, Field } from "../ui";
+import { Button, Field, QueryGate } from "../ui";
 
 export function UserEditor({
   user,
@@ -15,6 +16,8 @@ export function UserEditor({
   onClose: () => void;
 }) {
   const client = useQueryClient();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const [resetLink, setResetLink] = useState<string | null>(null);
   const [form, setForm] = useState({
     fullName: user.fullName,
     email: user.email,
@@ -35,6 +38,14 @@ export function UserEditor({
     queryKey: ["departments"],
     queryFn: () => apiFetch<Department[]>("/identity/departments"),
   });
+  useEffect(() => {
+    headingRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
   const save = useMutation({
     mutationFn: () =>
       apiFetch(`/identity/users/${user.id}`, {
@@ -59,10 +70,11 @@ export function UserEditor({
         ...jsonBody({ email: user.email }),
       }),
     onSuccess: async ({ token }) => {
-      await navigator.clipboard.writeText(
-        `${location.origin}/reset-password?token=${encodeURIComponent(token)}`,
-      );
-      toast.success("Password reset link copied");
+      const link = `${location.origin}/reset-password?token=${encodeURIComponent(token)}`;
+      setResetLink(link);
+      const copied = await copyText(link);
+      if (copied) toast.success("Password reset link copied");
+      else toast.warning("Reset link created. Copy the link shown below.");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -80,106 +92,152 @@ export function UserEditor({
   }
 
   return (
-    <aside className="edit-drawer">
-      <p className="eyebrow">Account controls</p>
-      <h2>Manage person</h2>
-      <form className="stack-form" onSubmit={submit}>
-        <Field
-          required
-          label="Full name"
-          value={form.fullName}
-          onChange={(event) =>
-            setForm({ ...form, fullName: event.target.value })
-          }
-        />
-        <Field
-          required
-          type="email"
-          label="Email"
-          value={form.email}
-          onChange={(event) => setForm({ ...form, email: event.target.value })}
-        />
-        <label className="field">
-          <span>Branch</span>
-          <select
-            value={form.branchId}
+    <aside
+      id="user-editor"
+      className="edit-drawer"
+      aria-label={`Manage ${user.fullName}`}
+    >
+      <h2 ref={headingRef} tabIndex={-1}>
+        Manage {user.fullName}
+      </h2>
+      <QueryGate
+        queries={[roles, branches, departments]}
+        label="Account options"
+      >
+        <form className="stack-form" onSubmit={submit}>
+          <Field
+            required
+            label="Full name"
+            maxLength={120}
+            value={form.fullName}
             onChange={(event) =>
-              setForm({
-                ...form,
-                branchId: event.target.value,
-                departmentId: "",
-              })
-            }
-          >
-            <option value="">Company-wide</option>
-            {branches.data
-              ?.filter((branch) => branch.isActive)
-              .map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Department</span>
-          <select
-            value={form.departmentId}
-            disabled={!form.branchId}
-            onChange={(event) =>
-              setForm({ ...form, departmentId: event.target.value })
-            }
-          >
-            <option value="">No department</option>
-            {departments.data
-              ?.filter(
-                (department) =>
-                  department.isActive && department.branchId === form.branchId,
-              )
-              .map((department) => (
-                <option key={department.id} value={department.id}>
-                  {department.name}
-                </option>
-              ))}
-          </select>
-        </label>
-        <fieldset className="check-grid">
-          <legend>Roles</legend>
-          {roles.data?.map((role) => (
-            <label key={role.id}>
-              <input
-                type="checkbox"
-                checked={form.roleIds.includes(role.id)}
-                onChange={() => toggleRole(role.id)}
-              />
-              <span>
-                <strong>{role.name}</strong>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <label className="switch-row">
-          <input
-            type="checkbox"
-            checked={form.isActive}
-            onChange={(event) =>
-              setForm({ ...form, isActive: event.target.checked })
+              setForm({ ...form, fullName: event.target.value })
             }
           />
-          <span>Account is active</span>
-        </label>
-        <div className="form-actions">
-          <Button disabled={save.isPending || !form.roleIds.length}>
-            Save changes
+          <Field
+            required
+            type="email"
+            label="Email"
+            maxLength={254}
+            value={form.email}
+            onChange={(event) =>
+              setForm({ ...form, email: event.target.value })
+            }
+          />
+          <label className="field">
+            <span>Branch</span>
+            <select
+              value={form.branchId}
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  branchId: event.target.value,
+                  departmentId: "",
+                })
+              }
+            >
+              <option value="">Company-wide</option>
+              {branches.data
+                ?.filter((branch) => branch.isActive)
+                .map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Department</span>
+            <select
+              value={form.departmentId}
+              disabled={!form.branchId}
+              onChange={(event) =>
+                setForm({ ...form, departmentId: event.target.value })
+              }
+            >
+              <option value="">No department</option>
+              {departments.data
+                ?.filter(
+                  (department) =>
+                    department.isActive &&
+                    department.branchId === form.branchId,
+                )
+                .map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <fieldset className="check-grid">
+            <legend>Roles</legend>
+            {roles.data?.map((role) => (
+              <label key={role.id}>
+                <input
+                  type="checkbox"
+                  checked={form.roleIds.includes(role.id)}
+                  onChange={() => toggleRole(role.id)}
+                />
+                <span>
+                  <strong>{role.name}</strong>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <label className="switch-row">
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(event) =>
+                setForm({ ...form, isActive: event.target.checked })
+              }
+            />
+            <span>Account is active</span>
+          </label>
+          <div className="form-actions">
+            <Button disabled={save.isPending || !form.roleIds.length}>
+              {save.isPending ? "Saving…" : "Save changes"}
+            </Button>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
+          <Button
+            type="button"
+            variant="quiet"
+            disabled={reset.isPending}
+            onClick={() => reset.mutate()}
+          >
+            {reset.isPending
+              ? "Creating reset link…"
+              : "Create password reset link"}
           </Button>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-        </div>
-        <Button type="button" variant="quiet" onClick={() => reset.mutate()}>
-          Copy password reset link
-        </Button>
-      </form>
+          {resetLink && (
+            <div className="generated-link" role="status">
+              <label htmlFor="latest-reset-link">
+                Latest password reset link
+              </label>
+              <input
+                id="latest-reset-link"
+                readOnly
+                value={resetLink}
+                onFocus={(event) => event.target.select()}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={async () => {
+                  const copied = await copyText(resetLink);
+                  if (copied) toast.success("Reset link copied");
+                  else toast.error("Select and copy the link manually");
+                }}
+              >
+                Copy again
+              </Button>
+            </div>
+          )}
+        </form>
+      </QueryGate>
     </aside>
   );
 }

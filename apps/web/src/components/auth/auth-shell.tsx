@@ -2,12 +2,10 @@ import { Building2, CircuitBoard } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function AuthShell({
-  eyebrow,
   title,
   intro,
   children,
 }: {
-  eyebrow: string;
   title: string;
   intro: string;
   children: ReactNode;
@@ -23,7 +21,6 @@ export function AuthShell({
           </span>
         </div>
         <div className="auth-story-copy">
-          <span className="index-label">OPERATIONS / 01</span>
           <h2>
             One accountable workspace for the work that moves engineering
             forward.
@@ -41,7 +38,6 @@ export function AuthShell({
       </section>
       <section className="auth-form-area">
         <div className="auth-form-card">
-          <p className="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
           <p className="form-intro">{intro}</p>
           {children}

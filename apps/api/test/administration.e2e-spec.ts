@@ -81,6 +81,14 @@ describe('Administration (e2e)', () => {
     const branchBody = branchResponse.body as { id: string };
     const branchId = branchBody.id;
 
+    await agent
+      .post('/api/v1/identity/branches')
+      .send({ name: 'Invalid branch', code: 'X'.repeat(21) })
+      .expect(400);
+    await agent
+      .get(`/api/v1/identity/users?search=${'x'.repeat(121)}`)
+      .expect(400);
+
     const departmentResponse = await agent
       .post('/api/v1/identity/departments')
       .send({ name: 'Delivery E2E', code: 'DEL', branchId })
@@ -148,7 +156,13 @@ describe('Administration (e2e)', () => {
     const invitations = await agent
       .get('/api/v1/identity/invitations')
       .expect(200);
-    expect(invitations.body).toEqual(
+    const invitationPage = invitations.body as {
+      items: Array<Record<string, unknown>>;
+      total: number;
+      page: number;
+      limit: number;
+    };
+    expect(invitationPage.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: inviteBody.id,
@@ -157,10 +171,9 @@ describe('Administration (e2e)', () => {
       ]),
     );
     expect(
-      (invitations.body as Array<Record<string, unknown>>).some(
-        (invitation) => 'tokenHash' in invitation,
-      ),
+      invitationPage.items.some((invitation) => 'tokenHash' in invitation),
     ).toBe(false);
+    expect(invitationPage).toMatchObject({ page: 1, limit: 25 });
 
     const users = await agent
       .get('/api/v1/identity/users?search=administration&page=1&limit=10')

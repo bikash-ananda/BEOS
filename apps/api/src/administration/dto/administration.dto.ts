@@ -1,47 +1,28 @@
-import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsEmail,
-  IsInt,
   IsOptional,
   IsString,
-  Max,
-  Min,
+  MaxLength,
   MinLength,
 } from 'class-validator';
-
-export class ListQueryDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page = 1;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  limit = 25;
-}
 
 export class CreateBranchDto {
   @IsString()
   @MinLength(2)
+  @MaxLength(120)
   name: string;
 
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   code: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   city?: string;
 }
 
@@ -49,15 +30,18 @@ export class UpdateBranchDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(120)
   name?: string;
 
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   code?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   city?: string;
 
   @IsOptional()
@@ -68,10 +52,12 @@ export class UpdateBranchDto {
 export class CreateDepartmentDto {
   @IsString()
   @MinLength(2)
+  @MaxLength(120)
   name: string;
 
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   code: string;
 
   @IsString()
@@ -82,11 +68,13 @@ export class UpdateDepartmentDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(120)
   name?: string;
 
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   code?: string;
 
   @IsOptional()
@@ -101,10 +89,12 @@ export class UpdateDepartmentDto {
 export class CreateRoleDto {
   @IsString()
   @MinLength(2)
+  @MaxLength(80)
   name: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(240)
   description?: string;
 
   @IsArray()
@@ -117,10 +107,12 @@ export class UpdateRoleDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(80)
   name?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(240)
   description?: string;
 
   @IsOptional()
@@ -134,10 +126,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
+  @MaxLength(120)
   fullName?: string;
 
   @IsOptional()
   @IsEmail()
+  @MaxLength(254)
   email?: string;
 
   @IsOptional()

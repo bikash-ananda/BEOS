@@ -23,10 +23,10 @@ export function TokenPasswordForm({ mode }: { mode: "invite" | "reset" }) {
   const client = useQueryClient();
   const schema = z
     .object({
-      token: z.string().min(20, "Paste the complete secure token"),
-      password: z.string().min(12, "Use at least 12 characters"),
-      confirmPassword: z.string(),
-      fullName: z.string().optional(),
+      token: z.string().min(20, "Paste the complete secure token").max(512),
+      password: z.string().min(12, "Use at least 12 characters").max(128),
+      confirmPassword: z.string().max(128),
+      fullName: z.string().max(120).optional(),
     })
     .superRefine((value, context) => {
       if (value.password !== value.confirmPassword) {
@@ -91,6 +91,7 @@ export function TokenPasswordForm({ mode }: { mode: "invite" | "reset" }) {
         <Field
           label="Full name"
           autoComplete="name"
+          maxLength={120}
           error={form.formState.errors.fullName?.message}
           {...form.register("fullName")}
         />
@@ -98,6 +99,7 @@ export function TokenPasswordForm({ mode }: { mode: "invite" | "reset" }) {
       <Field
         label="Secure token"
         autoComplete="off"
+        maxLength={512}
         error={form.formState.errors.token?.message}
         {...form.register("token")}
       />
@@ -105,6 +107,7 @@ export function TokenPasswordForm({ mode }: { mode: "invite" | "reset" }) {
         label="New password"
         type="password"
         autoComplete="new-password"
+        maxLength={128}
         error={form.formState.errors.password?.message}
         {...form.register("password")}
       />
@@ -112,6 +115,7 @@ export function TokenPasswordForm({ mode }: { mode: "invite" | "reset" }) {
         label="Confirm password"
         type="password"
         autoComplete="new-password"
+        maxLength={128}
         error={form.formState.errors.confirmPassword?.message}
         {...form.register("confirmPassword")}
       />

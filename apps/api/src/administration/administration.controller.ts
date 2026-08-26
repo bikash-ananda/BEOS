@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
+import { ListQueryDto } from '../common/dto/list-query.dto';
 import { ACCESS_COOKIE } from '../auth/auth.constants';
 import type { AuthenticatedUser } from '../auth/auth-user';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -19,7 +20,6 @@ import {
   CreateBranchDto,
   CreateDepartmentDto,
   CreateRoleDto,
-  ListQueryDto,
   UpdateBranchDto,
   UpdateDepartmentDto,
   UpdateRoleDto,

@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, type ReactNode } from "react";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
+import { Button } from "./ui";
 import type { AuthUser } from "@/lib/types";
 
 const SessionContext = createContext<AuthUser | null>(null);
@@ -18,16 +19,37 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    if (session.isError) {
+    if (session.error instanceof ApiError && session.error.status === 401) {
       router.replace(`/login?next=${encodeURIComponent(pathname)}`);
     }
-  }, [pathname, router, session.isError]);
+  }, [pathname, router, session.error]);
 
-  if (session.isPending || session.isError) {
+  if (session.isPending) {
     return (
       <main className="loading-screen" aria-live="polite">
         <div className="loading-mark">BE</div>
         <p>Opening your workspace…</p>
+      </main>
+    );
+  }
+  if (session.isError) {
+    if (session.error instanceof ApiError && session.error.status === 401) {
+      return (
+        <main className="loading-screen" aria-live="polite">
+          <div className="loading-mark">BE</div>
+          <p>Returning to sign in…</p>
+        </main>
+      );
+    }
+    return (
+      <main className="session-error" role="alert">
+        <div>
+          <h1>BEOS could not open your workspace.</h1>
+          <p>
+            {session.error.message || "Check your connection and try again."}
+          </p>
+          <Button onClick={() => void session.refetch()}>Try again</Button>
+        </div>
       </main>
     );
   }

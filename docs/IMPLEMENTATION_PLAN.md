@@ -31,11 +31,11 @@ code and verification pass.
 - [x] Add centralized, validated environment configuration.
 - [x] Add the global Prisma lifecycle module and readiness check.
 - [x] Add API versioning, validation, CORS, security headers, structured logs,
-  request IDs, consistent errors, and OpenAPI documentation.
+      request IDs, consistent errors, and OpenAPI documentation.
 - [x] Remove incomplete accounting source code from the active API build while
-  preserving its migration history.
+      preserving its migration history.
 - [x] Pass formatting, lint, unit tests, API tests, Prisma validation, and both
-  production builds.
+      production builds.
 - [x] Confirm live database readiness through Docker.
 - [x] Reconcile all foundation documentation after verification.
 
@@ -44,24 +44,24 @@ code and verification pass.
 - [x] Design and migrate invitations and revocable multi-device sessions.
 - [x] Add the first-administrator bootstrap command and idempotent RBAC seed.
 - [x] Implement invite acceptance, login, refresh rotation, logout, logout-all,
-  current-user, password change, and administrator password reset.
+      current-user, password change, and administrator password reset.
 - [x] Add backend permission guards and audit identity/security events.
 - [x] Add protected web routes and real session-aware navigation.
 - [x] Add administrator workflows for users, roles, permissions, branches, and
-  departments.
+      departments.
 - [x] Verify invitation expiry, refresh replay rejection, session revocation,
-  disabled accounts, and 401/403 boundaries.
+      disabled accounts, and 401/403 boundaries.
 
 ## Iteration 3 — Dynamic workspace shell
 
 - [x] Break the demo page into a maintainable application shell and UI
-  components.
+      components.
 - [x] Replace all fake profile, branch, dashboard, meeting, activity, and
-  discussion data with authenticated API data.
+      discussion data with authenticated API data.
 - [x] Display only implemented modules allowed by the current user's
-  permissions.
-- [ ] Add loading, empty, error, and permission-denied states.
-- [ ] Verify responsive and keyboard-accessible behavior.
+      permissions.
+- [x] Add loading, empty, error, and permission-denied states.
+- [x] Verify responsive and keyboard-accessible behavior.
 
 ## Iteration 4 — Files, audit, and notifications
 
@@ -92,7 +92,7 @@ code and verification pass.
 - [ ] Split the Prisma schema by domain using its supported multi-file layout.
 - [ ] Generate web API types from the OpenAPI contract.
 - [ ] Add verified database indexes, rate limits, upload quotas, and sanitized
-  production logging.
+      production logging.
 - [ ] Add database integration, component, and browser journey coverage.
 - [ ] Test migrations against empty and populated pre-release databases.
 - [ ] Document deployment, migration, backup, restore, rollback, and bootstrap.
@@ -139,3 +139,23 @@ code and verification pass.
 - The previous static dashboard and handwritten SVG switch were removed. UI,
   auth, workspace, and administration responsibilities now live in separate
   components and stylesheets.
+
+## Iteration 3 implementation notes
+
+- Shared query states now distinguish loading, empty, recoverable errors, and
+  permission denial. Session failures only redirect to login for an actual
+  unauthorized response; network and server failures remain retryable.
+- User and invitation administration now use bounded server-side search and
+  pagination. Shared query validation and matching client/server input limits
+  prevent unbounded or malformed requests.
+- Generated invitation and password-reset links remain visible for manual copy
+  when clipboard access is unavailable, and mutation controls prevent duplicate
+  submissions.
+- The workspace includes skip navigation, keyboard-operable administration
+  tabs, managed drawer focus, and explicit responsive states. Desktop and mobile
+  Firefox checks confirmed the public authentication layout at 1440x900 and
+  390x844; protected workspace behavior is covered by static, unit, and end-to-end
+  verification.
+- Removed decorative counters, implementation-oriented copy, an unnecessary
+  authentication grid, and hard offset shadows. No dependency was added in this
+  iteration.

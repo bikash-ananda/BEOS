@@ -5,7 +5,6 @@ import { TokenPasswordForm } from "@/components/auth/token-password-form";
 export default function ResetPasswordPage() {
   return (
     <AuthShell
-      eyebrow="Account recovery"
       title="Choose a new password."
       intro="Use the secure token supplied by your administrator. Existing sessions will be closed."
     >

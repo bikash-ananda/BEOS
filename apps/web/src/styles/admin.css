@@ -15,7 +15,7 @@
   background: transparent;
   padding: 0.85rem 1rem;
   color: var(--ink-soft);
-  font-size: 0.76rem;
+  font-size: 0.875rem;
   font-weight: 750;
 }
 .admin-tabs button svg {
@@ -46,7 +46,7 @@
 .panel-heading > span {
   color: var(--ink-soft);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
 }
 .split-panels {
@@ -79,19 +79,21 @@
   display: block;
 }
 .record-list strong {
-  font-size: 0.79rem;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
 }
 .record-list small {
   margin-top: 0.2rem;
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
 .status {
   display: inline-flex;
   border: 1px solid currentColor;
   padding: 0.2rem 0.42rem;
   font-family: var(--font-geist-mono);
-  font-size: 0.57rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -107,10 +109,6 @@
   padding: 2rem;
   text-align: center;
 }
-.empty-state > span {
-  color: var(--line-dark);
-  font-family: var(--font-geist-mono);
-}
 .empty-state h3 {
   margin: 0.6rem 0 0.3rem;
   font-size: 1rem;
@@ -118,7 +116,7 @@
 .empty-state p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 .management-layout {
   display: grid;
@@ -131,9 +129,9 @@
   padding: 1.5rem;
   align-self: start;
 }
-.management-form > p:not(.eyebrow) {
+.management-form > p {
   color: var(--ink-soft);
-  font-size: 0.76rem;
+  font-size: 0.875rem;
   line-height: 1.6;
 }
 .stack-form {
@@ -171,12 +169,13 @@
 }
 .check-grid strong {
   font-family: var(--font-geist-mono);
-  font-size: 0.63rem;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
 }
 .check-grid small {
   margin-top: 0.15rem;
   color: var(--ink-soft);
-  font-size: 0.62rem;
+  font-size: 0.78rem;
 }
 .form-actions {
   display: flex;
@@ -198,18 +197,19 @@
   justify-content: space-between;
   color: var(--signal-dark);
   font-family: var(--font-geist-mono);
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
 .role-grid h3 {
   margin: 0.7rem 0 0.25rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 .role-grid p {
   min-height: 2.4rem;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   line-height: 1.5;
 }
 .tag-row {
@@ -222,7 +222,8 @@
   background: #e6e3da;
   padding: 0.2rem 0.35rem;
   font-family: var(--font-geist-mono);
-  font-size: 0.52rem;
+  font-size: 0.65rem;
+  overflow-wrap: anywhere;
   font-style: normal;
 }
 .role-grid .button {
@@ -255,7 +256,7 @@
   border: 0;
   background: transparent;
   outline: 0;
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 .record-list.users article {
   grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -270,7 +271,7 @@
   display: flex;
   gap: 0.6rem;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 .switch-row input {
@@ -283,11 +284,49 @@
   border: 1px solid var(--line);
   padding: 1rem;
   color: var(--ink-soft);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   line-height: 1.5;
 }
 .security-note svg {
   width: 1rem;
   flex: none;
   color: var(--success);
+}
+.generated-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.generated-link label {
+  grid-column: 1/-1;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.generated-link input {
+  min-width: 0;
+  height: 2.65rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper);
+  padding: 0 0.7rem;
+  color: var(--ink);
+  font-size: 0.875rem;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.pagination span {
+  font-family: var(--font-geist-mono);
+  font-size: 0.75rem;
+}
+.record-list > article > div {
+  min-width: 0;
+}
+.edit-drawer h2 {
+  overflow-wrap: anywhere;
 }

@@ -5,7 +5,6 @@ import { LoginForm } from "@/components/auth/login-form";
 export default function LoginPage() {
   return (
     <AuthShell
-      eyebrow="Identity gateway"
       title="Welcome back."
       intro="Sign in with your company account to continue."
     >

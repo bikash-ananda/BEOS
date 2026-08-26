@@ -95,3 +95,6 @@ employee assignments, and disable accounts from `/admin`.
 Phase 1 builds Identity & Access and the Company Workspace before later
 business modules. Progress, decisions, and the next verified slice live in
 [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
+
+Coordinated PostgreSQL and file recovery procedures live in
+[`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md).

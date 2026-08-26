@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-26T10:02:43Z",
+  "title": "Design System: BEOS",
+  "extensions": {
+    "colorMeta": {
+      "engineering-paper": {
+        "role": "neutral",
+        "displayName": "Engineering Paper",
+        "canonical": "#f1eee4",
+        "tonalRamp": [
+          "#2f2e29",
+          "#504f48",
+          "#747269",
+          "#9b988d",
+          "#c3c0b5",
+          "#ddd9cf",
+          "#f1eee4",
+          "#faf8f1"
+        ]
+      },
+      "clean-paper": {
+        "role": "neutral",
+        "displayName": "Clean Paper",
+        "canonical": "#faf8f1",
+        "tonalRamp": [
+          "#302f2b",
+          "#55534c",
+          "#7b786f",
+          "#a39f94",
+          "#cac6ba",
+          "#e5e1d6",
+          "#f4f1e8",
+          "#faf8f1"
+        ]
+      },
+      "operations-navy": {
+        "role": "neutral",
+        "displayName": "Operations Navy",
+        "canonical": "#102b45",
+        "tonalRamp": [
+          "#071522",
+          "#102b45",
+          "#244764",
+          "#456681",
+          "#69879f",
+          "#91a9bb",
+          "#bdccd6",
+          "#e6edf1"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#13283d",
+        "tonalRamp": [
+          "#09141f",
+          "#13283d",
+          "#2a445d",
+          "#4a637b",
+          "#6e8498",
+          "#96a7b5",
+          "#c0ccd4",
+          "#e9eef1"
+        ]
+      },
+      "signal-orange": {
+        "role": "primary",
+        "displayName": "Signal Orange",
+        "canonical": "#e55a2f",
+        "tonalRamp": [
+          "#3d1408",
+          "#672311",
+          "#91351b",
+          "#b94120",
+          "#e55a2f",
+          "#ec8160",
+          "#f3ac95",
+          "#fbe0d6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Major workspace purpose and page headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Operational instructions and record content."
+      },
+      "label": {
+        "displayName": "Technical Label",
+        "purpose": "Coordinates, fields, scope, status, and navigation labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "entry-ambient",
+        "value": "0 20px 60px rgba(19, 40, 61, 0.12)",
+        "purpose": "Authentication entry surface only; never routine workspace panels."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-standard",
+        "value": "160ms ease",
+        "purpose": "Button and color state transitions."
+      },
+      {
+        "name": "drawer-standard",
+        "value": "200ms ease",
+        "purpose": "Mobile navigation translation."
+      }
+    ],
+    "breakpoints": [
+      { "name": "management-stack", "value": "1100px" },
+      { "name": "mobile-navigation", "value": "800px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Decisive action with rare Signal Orange emphasis.",
+      "html": "<button class=\"ds-btn-primary\">SAVE CHANGES</button>",
+      "css": ".ds-btn-primary { min-height: 2.65rem; border: 1px solid transparent; border-radius: 0; padding: .68rem 1rem; background: var(--signal, #e55a2f); color: #fff; font: 750 .875rem Geist, sans-serif; transition: background .16s, transform .16s; } .ds-btn-primary:hover { background: var(--signal-dark, #b94120); transform: translateY(-1px); } .ds-btn-primary:focus-visible { outline: 3px solid rgba(229,90,47,.32); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Structural secondary action without competing color.",
+      "html": "<button class=\"ds-btn-secondary\">CANCEL</button>",
+      "css": ".ds-btn-secondary { min-height: 2.65rem; border: 1px solid var(--line, #c9c7bd); border-radius: 0; padding: .68rem 1rem; background: transparent; color: var(--ink, #13283d); font: 750 .875rem Geist, sans-serif; transition: background .16s, transform .16s; } .ds-btn-secondary:hover { background: #e5e2d8; transform: translateY(-1px); } .ds-btn-secondary:focus-visible { outline: 3px solid rgba(229,90,47,.32); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Square document field with an explicit technical label.",
+      "html": "<label class=\"ds-field\"><span>SEARCH RECORDS</span><input placeholder=\"Filename or owner\"></label>",
+      "css": ".ds-field { display: grid; gap: .4rem; color: var(--ink, #13283d); font: 700 .875rem Geist, sans-serif; } .ds-field span { font: 700 .72rem/1.2 'Geist Mono', monospace; letter-spacing: .08em; text-transform: uppercase; } .ds-field input { width: 100%; height: 2.8rem; border: 1px solid var(--line-dark, #9b9d98); border-radius: 0; background: var(--paper-light, #faf8f1); padding: 0 .78rem; color: var(--ink, #13283d); font-size: 1rem; } .ds-field input:focus { border-color: var(--signal, #e55a2f); outline: 2px solid rgba(229,90,47,.12); }"
+    },
+    {
+      "name": "Workspace Panel",
+      "kind": "card",
+      "description": "Flat ruled working surface for a coherent record group.",
+      "html": "<section class=\"ds-panel\"><header>WORKSPACE FILES</header><p>Records remain aligned to their company scope.</p></section>",
+      "css": ".ds-panel { border: 1px solid var(--line, #c9c7bd); border-radius: 0; background: var(--paper-light, #faf8f1); color: var(--ink, #13283d); } .ds-panel header { border-bottom: 1px solid var(--line, #c9c7bd); padding: .8rem 1rem; font: 700 .72rem 'Geist Mono', monospace; letter-spacing: .1em; } .ds-panel p { margin: 0; padding: 1.5rem; font: 400 1rem/1.65 Geist, sans-serif; }"
+    },
+    {
+      "name": "Rail Navigation Item",
+      "kind": "nav",
+      "description": "Low-noise navigation with a one-pixel active signal.",
+      "html": "<a class=\"ds-nav-item ds-nav-active\" href=\"#\">FILES</a>",
+      "css": ".ds-nav-item { display: flex; padding: .75rem; background: transparent; color: #bfcbd4; font: 600 .82rem Geist, sans-serif; text-decoration: none; } .ds-nav-item:hover, .ds-nav-active { background: rgba(255,255,255,.1); color: #fff; } .ds-nav-active { box-shadow: inset 1px 0 var(--signal, #e55a2f); } .ds-nav-item:focus-visible { outline: 3px solid rgba(229,90,47,.45); outline-offset: -1px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engineering Field Ledger",
+    "overview": "BEOS treats operational data like a well-kept engineering field ledger: every record has a place, every boundary communicates structure, and emphasis is earned through hierarchy rather than decoration. The interface is precise, calm, operational, and document-grade rather than dashboard-like.",
+    "keyCharacteristics": [
+      "Flat bordered working surfaces with square corners",
+      "Large tightly tracked headings paired with technical mono labels",
+      "Restrained Signal Orange reserved for action and orientation",
+      "Dense enough for real work with generous separation between major regions",
+      "Explicit loading, empty, error, denied, and active states"
+    ],
+    "rules": [
+      {
+        "name": "Signal Rarity",
+        "body": "Signal Orange identifies action or location; it does not become a decorative fill across unrelated regions.",
+        "section": "colors"
+      },
+      {
+        "name": "Two Voice",
+        "body": "Sans-serif explains the work; mono labels locate and classify it. Mono is not used for long prose.",
+        "section": "typography"
+      },
+      {
+        "name": "Flat Working Surface",
+        "body": "Workspace panels remain flat at rest; interaction is communicated through color, rules, and minimal movement.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use persisted product data and truthful empty or unavailable states.",
+      "Do align record metadata and actions into ruled registers.",
+      "Do reserve Signal Orange for real action, state, and orientation.",
+      "Do preserve square controls, visible focus, and readable mobile type.",
+      "Do let typography and spacing establish hierarchy before adding chrome."
+    ],
+    "donts": [
+      "Don't use rounded SaaS cards, decorative metric grids, floating glass panels, or ornamental dashboard clutter.",
+      "Don't invent company metrics, activity, files, notifications, or proof to make an empty surface appear populated.",
+      "Don't add shadows to routine workspace panels.",
+      "Don't turn every section into an isolated card or every status into a colorful pill.",
+      "Don't expose implementation or security mechanics in ordinary product copy."
+    ]
+  }
+}

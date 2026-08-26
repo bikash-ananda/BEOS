@@ -5,6 +5,7 @@ import {
   KeyRound,
   MailPlus,
   ShieldCheck,
+  ScrollText,
   Users,
 } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
@@ -14,8 +15,9 @@ import { OrganizationPanel } from "./organization-panel";
 import { RolesPanel } from "./roles-panel";
 import { UsersPanel } from "./users-panel";
 import { PermissionState } from "../ui";
+import { AuditPanel } from "./audit-panel";
 
-type Tab = "users" | "invitations" | "roles" | "organization";
+type Tab = "users" | "invitations" | "roles" | "organization" | "audit";
 
 export function AdminConsole() {
   const user = useSession();
@@ -26,13 +28,14 @@ export function AdminConsole() {
     organization:
       user.permissions.includes("branches.manage") ||
       user.permissions.includes("departments.manage"),
+    audit: user.permissions.includes("audit.read"),
   };
   const first = (Object.keys(allowed) as Tab[]).find((key) => allowed[key]);
   const [tab, setTab] = useState<Tab>(first ?? "users");
 
   if (!first) {
     return (
-      <PermissionState>
+      <PermissionState title="Administration access required">
         Your role does not include company administration permissions. Ask a
         Super Admin if your responsibilities have changed.
       </PermissionState>
@@ -44,6 +47,7 @@ export function AdminConsole() {
     { key: "invitations", label: "Invitations", icon: MailPlus },
     { key: "roles", label: "Roles", icon: ShieldCheck },
     { key: "organization", label: "Organization", icon: Building2 },
+    { key: "audit", label: "Audit", icon: ScrollText },
   ];
   const visibleTabs = tabs.filter(({ key }) => allowed[key]);
   function navigateTabs(
@@ -98,6 +102,7 @@ export function AdminConsole() {
         {tab === "invitations" && <InvitationsPanel />}
         {tab === "roles" && <RolesPanel />}
         {tab === "organization" && <OrganizationPanel />}
+        {tab === "audit" && <AuditPanel />}
       </div>
       <div className="security-note">
         <KeyRound />

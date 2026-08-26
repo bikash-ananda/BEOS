@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  Bell,
   Building2,
+  FileText,
   LayoutGrid,
   LogOut,
   Menu,
@@ -11,8 +13,9 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
+import { NotificationDrawer } from "../notifications/notification-drawer";
 import { useSession } from "../session-boundary";
 
 export function WorkspaceShell({ children }: { children: ReactNode }) {
@@ -21,10 +24,19 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const firstNavigationLink = useRef<HTMLAnchorElement>(null);
-  const canAdmin = user.permissions.some((permission) =>
-    permission.endsWith(".manage"),
+  const notificationButton = useRef<HTMLButtonElement>(null);
+  const canReadFiles = user.permissions.includes("files.read");
+  const canAdmin = user.permissions.some(
+    (permission) =>
+      permission.endsWith(".manage") || permission === "audit.read",
   );
+  const unread = useQuery({
+    queryKey: ["notifications", "unread-count"],
+    queryFn: () => apiFetch<{ count: number }>("/notifications/unread-count"),
+    refetchInterval: 60_000,
+  });
   const initials = user.fullName
     .split(/\s+/)
     .map((part) => part[0])
@@ -91,6 +103,27 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             <LayoutGrid />
             Overview
           </Link>
+          {canReadFiles && (
+            <Link
+              className={pathname.startsWith("/files") ? "active" : ""}
+              href="/files"
+              onClick={() => setOpen(false)}
+            >
+              <FileText />
+              Files
+            </Link>
+          )}
+          <Link
+            className={pathname.startsWith("/notifications") ? "active" : ""}
+            href="/notifications"
+            onClick={() => setOpen(false)}
+          >
+            <Bell />
+            Notifications
+            {!!unread.data?.count && (
+              <span className="rail-count">{unread.data.count}</span>
+            )}
+          </Link>
           {canAdmin && (
             <Link
               className={pathname.startsWith("/admin") ? "active" : ""}
@@ -135,8 +168,20 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             <Menu />
           </button>
           <span className="header-coordinate">
-            BE / OPS / {pathname.startsWith("/admin") ? "ADMIN" : "HOME"}
+            BE / OPS / {workspaceCoordinate(pathname)}
           </span>
+          <button
+            ref={notificationButton}
+            type="button"
+            className="notification-trigger"
+            onClick={() => setNotificationsOpen((value) => !value)}
+            aria-label={`Notifications${unread.data?.count ? `, ${unread.data.count} unread` : ""}`}
+            aria-expanded={notificationsOpen}
+            aria-controls="notification-drawer"
+          >
+            <Bell />
+            {!!unread.data?.count && <span>{unread.data.count}</span>}
+          </button>
           <span className="system-live">
             {user.branch?.code ?? "Company-wide"}
           </span>
@@ -145,6 +190,18 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
           {children}
         </div>
       </div>
+      <NotificationDrawer
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        triggerRef={notificationButton}
+      />
     </div>
   );
+}
+
+function workspaceCoordinate(pathname: string) {
+  if (pathname.startsWith("/admin")) return "ADMIN";
+  if (pathname.startsWith("/files")) return "FILES";
+  if (pathname.startsWith("/notifications")) return "NOTIFICATIONS";
+  return "HOME";
 }

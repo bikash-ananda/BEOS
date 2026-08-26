@@ -72,3 +72,46 @@ export interface Page<T> {
   page: number;
   limit: number;
 }
+
+export interface Notification {
+  id: string;
+  type: "ACCOUNT" | "SECURITY" | "WORKSPACE";
+  title: string;
+  message: string;
+  href: string | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface NotificationPage extends Page<Notification> {
+  unread: number;
+}
+
+export type WorkspaceFileScope = "COMPANY" | "BRANCH" | "DEPARTMENT";
+
+export interface WorkspaceFile {
+  id: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  sha256: string;
+  createdAt: string;
+  uploadedBy: { id: string; fullName: string };
+  workspaceAttachments: Array<{
+    id: string;
+    scope: WorkspaceFileScope;
+    branch: OrganizationRef | null;
+    department: OrganizationRef | null;
+  }>;
+}
+
+export interface AuditEntry {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  metadata: Record<string, unknown> | null;
+  ipAddress: string | null;
+  createdAt: string;
+  user: { id: string; fullName: string; email: string } | null;
+}

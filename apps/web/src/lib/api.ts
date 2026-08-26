@@ -28,7 +28,9 @@ export async function apiFetch<T>(
   retry = true,
 ): Promise<T> {
   const headers = new Headers(init.headers);
-  if (init.body && !headers.has("content-type")) {
+  const isFormData =
+    typeof FormData !== "undefined" && init.body instanceof FormData;
+  if (init.body && !isFormData && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
   const response = await fetch(`${API_ROOT}${path}`, {

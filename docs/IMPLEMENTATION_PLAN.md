@@ -1,6 +1,6 @@
 # BEOS Implementation Plan
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 This is the living implementation tracker for turning BEOS into a usable,
 production-oriented system. Checkboxes are completed only after the relevant
@@ -65,12 +65,12 @@ code and verification pass.
 
 ## Iteration 4 — Files, audit, and notifications
 
-- [ ] Centralize audit recording for sensitive changes.
-- [ ] Add persistent notifications, unread counts, and read/read-all actions.
-- [ ] Add file metadata and explicit Workspace attachment relations.
-- [ ] Add authorized local file upload/download through a storage interface.
-- [ ] Validate content, file signatures, size limits, filenames, and access.
-- [ ] Document coordinated database and file backup/restore.
+- [x] Centralize audit recording for sensitive changes.
+- [x] Add persistent notifications, unread counts, and read/read-all actions.
+- [x] Add file metadata and explicit Workspace attachment relations.
+- [x] Add authorized local file upload/download through a storage interface.
+- [x] Validate content, file signatures, size limits, filenames, and access.
+- [x] Document coordinated database and file backup/restore.
 
 ## Iteration 5 — Workspace communication
 
@@ -159,3 +159,33 @@ code and verification pass.
 - Removed decorative counters, implementation-oriented copy, an unnecessary
   authentication grid, and hard offset shadows. No dependency was added in this
   iteration.
+
+## Iteration 4 implementation notes
+
+- Audit recording now accepts a transaction writer so sensitive identity,
+  notification, and file events can commit atomically with their domain change.
+  The permission-gated audit register supports bounded search and pagination.
+- Persistent, deduplicated notifications include unread counts, individual and
+  bulk read actions, a workspace history page, and a global notification drawer.
+  Invitation acceptance, password-reset completion, and access changes create
+  notifications inside their database transaction.
+- Files use immutable metadata, explicit company/branch/department attachment
+  scope, permission-aware visibility, and a replaceable storage interface. The
+  local implementation uses random keys, atomic writes, restrictive file modes,
+  traversal protection, and storage rollback when the database transaction
+  fails.
+- Upload validation enforces configured size limits, normalized filenames,
+  allowed extensions, declared content type, binary signatures, and valid text
+  content. Downloads re-check scope authorization and return hardened response
+  headers.
+- The coordinated PostgreSQL/filesystem recovery process is documented in
+  `docs/BACKUP_RESTORE.md`, including checksums and isolated restore tests.
+- The workspace follows the approved Engineering Field Ledger direction. The
+  static interface detector reported no findings. Safe headless Firefox capture
+  could not wait for authenticated client hydration, so protected-page visual
+  capture remains unconfirmed; the user approved proceeding without additional
+  PNG work.
+- New interface styles are divided by notifications, files, and audit rather
+  than kept in one growing workspace stylesheet. No dependency was added in
+  this iteration; the implementation uses the existing Nest platform support
+  and Node standard-library primitives.

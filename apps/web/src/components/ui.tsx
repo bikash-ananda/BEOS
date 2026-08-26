@@ -94,12 +94,18 @@ export function QueryGate({
   return children;
 }
 
-export function PermissionState({ children }: { children: ReactNode }) {
+export function PermissionState({
+  title = "Access required",
+  children,
+}: {
+  title?: string;
+  children: ReactNode;
+}) {
   return (
     <section className="query-state permission-state">
       <ShieldX />
       <div>
-        <h2>Administration access required</h2>
+        <h2>{title}</h2>
         <p>{children}</p>
       </div>
     </section>

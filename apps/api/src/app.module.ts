@@ -9,6 +9,8 @@ import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { validateEnvironment } from './config/environment';
 import { PrismaModule } from './prisma/prisma.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { FilesModule } from './files/files.module';
 import { RbacModule } from './rbac/rbac.module';
 
 @Module({
@@ -36,6 +38,8 @@ import { RbacModule } from './rbac/rbac.module';
     }),
     PrismaModule,
     AuditModule,
+    NotificationsModule,
+    FilesModule,
     RbacModule,
     AuthModule,
     AdministrationModule,

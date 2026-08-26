@@ -9,6 +9,7 @@ import { AuditService } from '../audit/audit.service';
 import { ListQueryDto } from '../common/dto/list-query.dto';
 import { Environment } from '../config/environment';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { authUserInclude } from './auth-user';
 import { ClientContext } from './auth-request';
 import { AuthTokenService } from './auth-token.service';
@@ -30,6 +31,7 @@ export class InvitationService {
     private readonly passwords: PasswordService,
     private readonly tokens: AuthTokenService,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async list(query: ListQueryDto) {
@@ -186,7 +188,7 @@ export class InvitationService {
       });
       if (consumed.count !== 1) throw this.invalidInvitation();
 
-      return transaction.user.create({
+      const created = await transaction.user.create({
         data: {
           email: invitation.email,
           fullName: input.fullName.trim(),
@@ -199,15 +201,30 @@ export class InvitationService {
         },
         include: authUserInclude,
       });
+      await this.notifications.create(
+        {
+          userId: created.id,
+          type: 'ACCOUNT',
+          title: 'Welcome to BEOS',
+          message: 'Your company workspace account is ready.',
+          href: '/',
+          dedupeKey: `invitation:${invitation.id}:accepted`,
+        },
+        transaction,
+      );
+      await this.audit.record(
+        {
+          action: 'identity.invitation_accepted',
+          entityType: 'Invitation',
+          entityId: invitation.id,
+          userId: created.id,
+          ipAddress: context.ipAddress,
+        },
+        transaction,
+      );
+      return created;
     });
     const auth = await this.tokens.issue(user, context);
-    await this.audit.record({
-      action: 'identity.invitation_accepted',
-      entityType: 'Invitation',
-      entityId: invitation.id,
-      userId: user.id,
-      ipAddress: context.ipAddress,
-    });
     return auth;
   }
 

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuditService } from '../audit/audit.service';
+import { ListQueryDto } from '../common/dto/list-query.dto';
 import { Environment } from '../config/environment';
 import { PrismaService } from '../prisma/prisma.service';
 import { authUserInclude } from './auth-user';
@@ -31,25 +32,38 @@ export class InvitationService {
     private readonly audit: AuditService,
   ) {}
 
-  async list() {
-    const invitations = await this.prisma.invitation.findMany({
-      select: {
-        id: true,
-        email: true,
-        expiresAt: true,
-        acceptedAt: true,
-        revokedAt: true,
-        createdAt: true,
-        branch: { select: { id: true, name: true, code: true } },
-        department: { select: { id: true, name: true, code: true } },
-        invitedBy: { select: { id: true, fullName: true } },
-        roles: { include: { role: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    });
+  async list(query: ListQueryDto) {
+    const where = query.search?.trim()
+      ? {
+          email: {
+            contains: query.search.trim(),
+            mode: 'insensitive' as const,
+          },
+        }
+      : {};
+    const [invitations, total] = await this.prisma.$transaction([
+      this.prisma.invitation.findMany({
+        where,
+        select: {
+          id: true,
+          email: true,
+          expiresAt: true,
+          acceptedAt: true,
+          revokedAt: true,
+          createdAt: true,
+          branch: { select: { id: true, name: true, code: true } },
+          department: { select: { id: true, name: true, code: true } },
+          invitedBy: { select: { id: true, fullName: true } },
+          roles: { include: { role: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.prisma.invitation.count({ where }),
+    ]);
     const now = Date.now();
-    return invitations.map((invitation) => ({
+    const items = invitations.map((invitation) => ({
       ...invitation,
       roles: invitation.roles.map(({ role }) => role),
       status: invitation.acceptedAt
@@ -60,6 +74,7 @@ export class InvitationService {
             ? 'expired'
             : 'pending',
     }));
+    return { items, total, page: query.page, limit: query.limit };
   }
 
   async create(

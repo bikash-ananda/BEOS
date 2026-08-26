@@ -1,3 +1,4 @@
+import { AlertTriangle, LoaderCircle, ShieldX } from "lucide-react";
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -39,10 +40,69 @@ export function EmptyState({
 }) {
   return (
     <div className="empty-state">
-      <span>00</span>
       <h3>{title}</h3>
       <p>{children}</p>
     </div>
+  );
+}
+
+interface QueryStatus {
+  isPending: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => unknown;
+}
+
+export function QueryGate({
+  queries,
+  label,
+  children,
+}: {
+  queries: QueryStatus[];
+  label: string;
+  children: ReactNode;
+}) {
+  const failed = queries.find((query) => query.isError);
+  if (failed) {
+    return (
+      <div className="query-state query-error" role="alert">
+        <AlertTriangle />
+        <div>
+          <h3>{label} could not be loaded</h3>
+          <p>
+            {failed.error?.message ?? "Check your connection and try again."}
+          </p>
+          <Button variant="secondary" onClick={() => void failed.refetch()}>
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  if (queries.some((query) => query.isPending)) {
+    return (
+      <div
+        className="query-state query-loading"
+        role="status"
+        aria-live="polite"
+      >
+        <LoaderCircle />
+        <span>Loading {label.toLowerCase()}…</span>
+      </div>
+    );
+  }
+  return children;
+}
+
+export function PermissionState({ children }: { children: ReactNode }) {
+  return (
+    <section className="query-state permission-state">
+      <ShieldX />
+      <div>
+        <h2>Administration access required</h2>
+        <p>{children}</p>
+      </div>
+    </section>
   );
 }
 

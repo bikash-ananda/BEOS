@@ -11,8 +11,8 @@ import type { AuthUser } from "@/lib/types";
 import { Button, Field } from "../ui";
 
 const schema = z.object({
-  email: z.email("Enter a valid email address"),
-  password: z.string().min(1, "Enter your password"),
+  email: z.email("Enter a valid email address").max(254),
+  password: z.string().min(1, "Enter your password").max(128),
 });
 type Values = z.infer<typeof schema>;
 
@@ -41,11 +41,17 @@ export function LoginForm() {
 
   return (
     <form className="auth-form" onSubmit={submit}>
+      {search.get("reset") === "complete" && (
+        <p className="form-success" role="status">
+          Your password has been updated. Sign in with the new password.
+        </p>
+      )}
       <Field
         label="Work email"
         type="email"
         autoComplete="email"
         placeholder="name@company.com"
+        maxLength={254}
         error={form.formState.errors.email?.message}
         {...form.register("email")}
       />
@@ -53,6 +59,7 @@ export function LoginForm() {
         label="Password"
         type="password"
         autoComplete="current-password"
+        maxLength={128}
         error={form.formState.errors.password?.message}
         {...form.register("password")}
       />

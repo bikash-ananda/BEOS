@@ -5,11 +5,13 @@ import {
   IsEmail,
   IsOptional,
   IsString,
+  MaxLength,
 } from 'class-validator';
 
 export class CreateInvitationDto {
   @ApiProperty({ example: 'employee@bikashengineering.com' })
   @IsEmail()
+  @MaxLength(254)
   email: string;
 
   @ApiProperty({ type: [String], minItems: 1 })

@@ -6,10 +6,12 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
+import { ListQueryDto } from '../common/dto/list-query.dto';
 import { PERMISSION_KEYS } from '../rbac/permissions';
 import { ACCESS_COOKIE } from './auth.constants';
 import type { AuthenticatedUser } from './auth-user';
@@ -31,8 +33,8 @@ export class IdentityController {
 
   @RequirePermissions(PERMISSION_KEYS.invitationsManage)
   @Get('invitations')
-  listInvitations() {
-    return this.invitations.list();
+  listInvitations(@Query() query: ListQueryDto) {
+    return this.invitations.list(query);
   }
 
   @RequirePermissions(PERMISSION_KEYS.invitationsManage)

@@ -7,12 +7,13 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useSession } from "../session-boundary";
 import { InvitationsPanel } from "./invitations-panel";
 import { OrganizationPanel } from "./organization-panel";
 import { RolesPanel } from "./roles-panel";
 import { UsersPanel } from "./users-panel";
+import { PermissionState } from "../ui";
 
 type Tab = "users" | "invitations" | "roles" | "organization";
 
@@ -31,10 +32,10 @@ export function AdminConsole() {
 
   if (!first) {
     return (
-      <section className="paper-card">
-        <h2>Administration access required</h2>
-        <p>Your role does not include company administration permissions.</p>
-      </section>
+      <PermissionState>
+        Your role does not include company administration permissions. Ask a
+        Super Admin if your responsibilities have changed.
+      </PermissionState>
     );
   }
 
@@ -44,6 +45,25 @@ export function AdminConsole() {
     { key: "roles", label: "Roles", icon: ShieldCheck },
     { key: "organization", label: "Organization", icon: Building2 },
   ];
+  const visibleTabs = tabs.filter(({ key }) => allowed[key]);
+  function navigateTabs(
+    event: KeyboardEvent<HTMLButtonElement>,
+    current: number,
+  ) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? visibleTabs.length - 1
+          : (current +
+              (event.key === "ArrowRight" ? 1 : -1) +
+              visibleTabs.length) %
+            visibleTabs.length;
+    setTab(visibleTabs[next].key);
+    document.getElementById(`admin-tab-${visibleTabs[next].key}`)?.focus();
+  }
 
   return (
     <>
@@ -52,21 +72,28 @@ export function AdminConsole() {
         role="tablist"
         aria-label="Administration sections"
       >
-        {tabs
-          .filter(({ key }) => allowed[key])
-          .map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={tab === key}
-              onClick={() => setTab(key)}
-            >
-              <Icon />
-              {label}
-            </button>
-          ))}
+        {visibleTabs.map(({ key, label, icon: Icon }, index) => (
+          <button
+            key={key}
+            id={`admin-tab-${key}`}
+            role="tab"
+            aria-selected={tab === key}
+            aria-controls="admin-tabpanel"
+            tabIndex={tab === key ? 0 : -1}
+            onClick={() => setTab(key)}
+            onKeyDown={(event) => navigateTabs(event, index)}
+          >
+            <Icon />
+            {label}
+          </button>
+        ))}
       </div>
-      <div className="admin-panel" role="tabpanel">
+      <div
+        id="admin-tabpanel"
+        className="admin-panel"
+        role="tabpanel"
+        aria-labelledby={`admin-tab-${tab}`}
+      >
         {tab === "users" && <UsersPanel />}
         {tab === "invitations" && <InvitationsPanel />}
         {tab === "roles" && <RolesPanel />}

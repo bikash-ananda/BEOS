@@ -5,6 +5,7 @@ export class AcceptInvitationDto {
   @ApiProperty()
   @IsString()
   @MinLength(20)
+  @MaxLength(512)
   token: string;
 
   @ApiProperty({ minLength: 2, maxLength: 120 })

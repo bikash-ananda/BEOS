@@ -24,6 +24,20 @@
 .workspace-shell {
   min-height: 100vh;
 }
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  background: var(--paper-light);
+  padding: 0.7rem 1rem;
+  color: var(--ink);
+  font-weight: 750;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
 .side-rail {
   position: fixed;
   inset: 0 auto 0 0;
@@ -66,7 +80,7 @@
   color: white;
 }
 .side-rail nav a.active {
-  border-left: 3px solid var(--signal);
+  box-shadow: inset 1px 0 var(--signal);
 }
 .rail-context {
   display: flex;
@@ -161,13 +175,6 @@
   font-size: 0.64rem;
   text-transform: uppercase;
 }
-.system-live i {
-  width: 0.48rem;
-  height: 0.48rem;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 4px rgba(35, 115, 90, 0.12);
-}
 .mobile-menu,
 .mobile-close {
   display: none;
@@ -181,10 +188,6 @@
   padding: clamp(2rem, 5vw, 4.5rem) clamp(1.2rem, 4vw, 3.2rem);
 }
 .page-heading {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2rem;
-  align-items: end;
   border-bottom: 1px solid var(--line-dark);
   padding-bottom: 2.2rem;
 }
@@ -193,67 +196,88 @@
   margin: 0.65rem 0 0.8rem;
   font-size: clamp(2.4rem, 5vw, 5rem);
   font-weight: 620;
-  letter-spacing: -0.065em;
+  letter-spacing: -0.04em;
   line-height: 0.96;
 }
 .page-heading p:last-child {
   max-width: 48rem;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.65;
 }
-.heading-index {
-  color: var(--line-dark);
-  font-family: var(--font-geist-mono);
-  font-size: 3.8rem;
-  font-weight: 300;
-  line-height: 0.7;
-  text-align: right;
+.scope-register {
+  margin: 2.5rem 0;
+  border: 1px solid var(--line);
+  background: var(--paper-light);
 }
-.heading-index small {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+.scope-register header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.8rem 1rem;
 }
-.metric-grid {
+.scope-register h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.scope-register .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.scope-register .button svg {
+  width: 0.9rem;
+}
+.scope-register dl {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--line);
-  border-width: 0 0 1px 1px;
-  margin: 2.5rem 0;
+  margin: 0;
 }
-.metric-grid article {
-  min-height: 13rem;
-  border: 1px solid var(--line);
-  border-width: 1px 1px 0 0;
-  padding: 1.5rem;
+.scope-register dl > div {
+  min-width: 0;
+  padding: 1.15rem;
+  border-right: 1px solid var(--line);
 }
-.metric-grid article > span {
-  display: grid;
-  width: 2.3rem;
-  height: 2.3rem;
-  place-items: center;
-  background: var(--navy);
-  color: white;
+.scope-register dl > div:last-child {
+  border-right: 0;
 }
-.metric-grid svg {
-  width: 1rem;
-}
-.metric-grid strong {
-  display: block;
-  margin-top: 1.6rem;
-  font-family: var(--font-geist-mono);
-  font-size: 2.2rem;
-  font-weight: 450;
-}
-.metric-grid p {
-  margin: 0.25rem 0;
-  font-size: 0.82rem;
+.scope-register dt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
   font-weight: 750;
 }
-.metric-grid small {
+.scope-register dt svg {
+  width: 1rem;
+  color: var(--signal-dark);
+}
+.scope-register dd {
+  margin: 0.7rem 0 0.2rem;
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.scope-register small {
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.inline-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #b7685a;
+  padding: 0.65rem 1rem;
+  color: #8c3022;
+  font-size: 0.875rem;
+}
+.inline-error svg {
+  width: 1rem;
 }
 .workspace-grid {
   display: grid;
@@ -264,16 +288,21 @@
   border: 1px solid var(--line);
   background: var(--paper-light);
   padding: clamp(1.5rem, 3vw, 2.4rem);
-  box-shadow: 7px 7px 0 rgba(19, 40, 61, 0.055);
 }
 .paper-card h2 {
   margin: 0.65rem 0;
   font-size: 1.55rem;
   letter-spacing: -0.035em;
 }
+.identity-card h3 {
+  margin: 1.6rem 0 0.2rem;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
 .paper-card p {
   color: var(--ink-soft);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
   line-height: 1.65;
 }
 .identity-card dl {
@@ -284,7 +313,7 @@
   grid-template-columns: 7rem 1fr;
   border-top: 1px solid var(--line);
   padding: 0.75rem 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 .identity-card dt {
   color: var(--ink-soft);
@@ -301,9 +330,6 @@
   background: var(--navy);
   color: white;
 }
-.next-card .card-index {
-  color: #ff8a63;
-}
 .next-card p {
   color: #b7c3cc;
 }
@@ -313,7 +339,7 @@
   gap: 0.5rem;
   margin-top: 1rem;
   color: #ff8a63;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 750;
   text-decoration: none;
 }

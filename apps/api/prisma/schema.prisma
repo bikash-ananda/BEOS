@@ -24,6 +24,7 @@ model Branch {
   devices              Device[]
   invitations          Invitation[]
   workspaceAttachments WorkspaceAttachment[]
+  announcements        Announcement[]
 }
 
 model Department {
@@ -39,32 +40,52 @@ model Department {
   employees            Employee[]
   invitations          Invitation[]
   workspaceAttachments WorkspaceAttachment[]
+  conversations        Conversation[]
+  announcements        Announcement[]
 
   @@unique([branchId, code])
 }
 
 model User {
-  id                    String          @id @default(cuid())
-  email                 String          @unique
-  passwordHash          String
-  fullName              String
-  isActive              Boolean         @default(true)
-  branchId              String?
-  branch                Branch?         @relation(fields: [branchId], references: [id])
-  departmentId          String?
-  department            Department?     @relation(fields: [departmentId], references: [id])
-  lastLoginAt           DateTime?
-  passwordChangedAt     DateTime        @default(now())
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-  roles                 UserRole[]
-  auditLogs             AuditLog[]
-  sessions              AuthSession[]
-  invitationsSent       Invitation[]    @relation("InvitationCreator")
-  passwordResets        PasswordReset[] @relation("PasswordResetUser")
-  passwordResetsCreated PasswordReset[] @relation("PasswordResetCreator")
-  notifications         Notification[]
-  uploadedFiles         FileRecord[]    @relation("FileUploader")
+  id                     String                      @id @default(cuid())
+  email                  String                      @unique
+  passwordHash           String
+  fullName               String
+  isActive               Boolean                     @default(true)
+  branchId               String?
+  branch                 Branch?                     @relation(fields: [branchId], references: [id])
+  departmentId           String?
+  department             Department?                 @relation(fields: [departmentId], references: [id])
+  lastLoginAt            DateTime?
+  passwordChangedAt      DateTime                    @default(now())
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+  roles                  UserRole[]
+  auditLogs              AuditLog[]
+  sessions               AuthSession[]
+  invitationsSent        Invitation[]                @relation("InvitationCreator")
+  passwordResets         PasswordReset[]             @relation("PasswordResetUser")
+  passwordResetsCreated  PasswordReset[]             @relation("PasswordResetCreator")
+  notifications          Notification[]
+  uploadedFiles          FileRecord[]                @relation("FileUploader")
+  discussions            Discussion[]
+  discussionComments     DiscussionComment[]
+  discussionReactions    DiscussionReaction[]
+  commentReactions       DiscussionCommentReaction[]
+  conversationsCreated   Conversation[]              @relation("ConversationCreator")
+  conversationMembers    ConversationMember[]
+  conversationMessages   ConversationMessage[]
+  conversationReceipts   ConversationReadReceipt[]
+  announcementsCreated   Announcement[]              @relation("AnnouncementAuthor")
+  announcementRecipients AnnouncementRecipient[]
+  meetingsOrganized      Meeting[]                   @relation("MeetingOrganizer")
+  meetingParticipants    MeetingParticipant[]
+  meetingAgendaItems     MeetingAgendaItem[]         @relation("AgendaItemCreator")
+  meetingNotes           MeetingNote[]
+  meetingDecisions       MeetingDecision[]
+  tasksCreated           WorkTask[]                  @relation("TaskCreator")
+  taskAssignments        TaskAssignee[]
+  taskComments           TaskComment[]
 }
 
 model Role {
@@ -134,6 +155,174 @@ model Notification {
   @@index([userId, readAt, createdAt])
 }
 
+enum ReactionKind {
+  ACKNOWLEDGE
+  SUPPORT
+  CELEBRATE
+}
+
+model Discussion {
+  id        String               @id @default(cuid())
+  title     String
+  body      String
+  authorId  String
+  author    User                 @relation(fields: [authorId], references: [id])
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  comments  DiscussionComment[]
+  reactions DiscussionReaction[]
+
+  @@index([deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model DiscussionComment {
+  id           String                      @id @default(cuid())
+  discussionId String
+  discussion   Discussion                  @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User                        @relation(fields: [authorId], references: [id])
+  body         String
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  reactions    DiscussionCommentReaction[]
+
+  @@index([discussionId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model DiscussionReaction {
+  discussionId String
+  discussion   Discussion   @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind         ReactionKind
+  createdAt    DateTime     @default(now())
+
+  @@id([discussionId, userId])
+  @@index([discussionId, kind])
+}
+
+model DiscussionCommentReaction {
+  commentId String
+  comment   DiscussionComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      ReactionKind
+  createdAt DateTime          @default(now())
+
+  @@id([commentId, userId])
+  @@index([commentId, kind])
+}
+
+enum ConversationType {
+  COMPANY
+  DEPARTMENT
+  PRIVATE_GROUP
+  DIRECT
+}
+
+model Conversation {
+  id           String                    @id @default(cuid())
+  type         ConversationType
+  name         String?
+  departmentId String?
+  department   Department?               @relation(fields: [departmentId], references: [id])
+  createdById  String
+  createdBy    User                      @relation("ConversationCreator", fields: [createdById], references: [id])
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  members      ConversationMember[]
+  messages     ConversationMessage[]
+  receipts     ConversationReadReceipt[]
+
+  @@index([type, updatedAt])
+  @@index([departmentId, updatedAt])
+  @@index([createdById])
+}
+
+model ConversationMember {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+
+  @@id([conversationId, userId])
+  @@index([userId, joinedAt])
+}
+
+model ConversationMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id])
+  body           String
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([conversationId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model ConversationReadReceipt {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt         DateTime     @default(now())
+
+  @@id([conversationId, userId])
+  @@index([userId, readAt])
+}
+
+enum AnnouncementTarget {
+  COMPANY
+  BRANCH
+  DEPARTMENT
+  USERS
+}
+
+model Announcement {
+  id           String                  @id @default(cuid())
+  title        String
+  body         String
+  target       AnnouncementTarget
+  branchId     String?
+  branch       Branch?                 @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?             @relation(fields: [departmentId], references: [id])
+  authorId     String
+  author       User                    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  recipients   AnnouncementRecipient[]
+
+  @@index([deletedAt, createdAt])
+  @@index([branchId, createdAt])
+  @@index([departmentId, createdAt])
+}
+
+model AnnouncementRecipient {
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt         DateTime?
+
+  @@id([announcementId, userId])
+  @@index([userId, readAt])
+}
+
 enum WorkspaceFileScope {
   COMPANY
   BRANCH
@@ -151,9 +340,208 @@ model FileRecord {
   uploadedBy           User                  @relation("FileUploader", fields: [uploadedById], references: [id])
   createdAt            DateTime              @default(now())
   workspaceAttachments WorkspaceAttachment[]
+  meetingAttachments   MeetingAttachment[]
+  taskAttachments      TaskAttachment[]
 
   @@index([uploadedById, createdAt])
   @@index([createdAt])
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum MeetingRsvp {
+  PENDING
+  ACCEPTED
+  DECLINED
+  TENTATIVE
+}
+
+enum MeetingNoteKind {
+  NOTE
+  MINUTE
+}
+
+model Meeting {
+  id           String               @id @default(cuid())
+  title        String
+  description  String?
+  location     String?
+  startsAt     DateTime
+  endsAt       DateTime
+  status       MeetingStatus        @default(SCHEDULED)
+  organizerId  String
+  organizer    User                 @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  participants MeetingParticipant[]
+  agendaItems  MeetingAgendaItem[]
+  notes        MeetingNote[]
+  decisions    MeetingDecision[]
+  tasks        WorkTask[]
+  attachments  MeetingAttachment[]
+
+  @@index([startsAt, status])
+  @@index([organizerId, startsAt])
+}
+
+model MeetingParticipant {
+  meetingId   String
+  meeting     Meeting     @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rsvp        MeetingRsvp @default(PENDING)
+  respondedAt DateTime?
+
+  @@id([meetingId, userId])
+  @@index([userId, rsvp])
+}
+
+model MeetingAgendaItem {
+  id          String            @id @default(cuid())
+  meetingId   String
+  meeting     Meeting           @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title       String
+  details     String?
+  position    Int
+  createdById String
+  createdBy   User              @relation("AgendaItemCreator", fields: [createdById], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  notes       MeetingNote[]
+  decisions   MeetingDecision[]
+  tasks       WorkTask[]
+
+  @@unique([meetingId, position])
+  @@index([createdById])
+}
+
+model MeetingNote {
+  id           String             @id @default(cuid())
+  meetingId    String
+  meeting      Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User               @relation(fields: [authorId], references: [id])
+  kind         MeetingNoteKind    @default(NOTE)
+  body         String
+  editedAt     DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([meetingId, kind, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+model MeetingDecision {
+  id           String             @id @default(cuid())
+  meetingId    String
+  meeting      Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User               @relation(fields: [authorId], references: [id])
+  body         String
+  editedAt     DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([meetingId, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  CANCELLED
+}
+
+model WorkTask {
+  id           String             @id @default(cuid())
+  title        String
+  description  String?
+  priority     TaskPriority       @default(NORMAL)
+  status       TaskStatus         @default(NOT_STARTED)
+  dueAt        DateTime?
+  completedAt  DateTime?
+  meetingId    String?
+  meeting      Meeting?           @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  createdById  String
+  createdBy    User               @relation("TaskCreator", fields: [createdById], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  assignees    TaskAssignee[]
+  comments     TaskComment[]
+  attachments  TaskAttachment[]
+
+  @@index([status, dueAt])
+  @@index([createdById, createdAt])
+  @@index([meetingId, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+model TaskAssignee {
+  taskId     String
+  task       WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@id([taskId, userId])
+  @@index([userId, assignedAt])
+}
+
+model TaskComment {
+  id        String    @id @default(cuid())
+  taskId    String
+  task      WorkTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  body      String
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([taskId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model MeetingAttachment {
+  meetingId String
+  meeting   Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  fileId    String
+  file      FileRecord @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  addedAt   DateTime   @default(now())
+
+  @@id([meetingId, fileId])
+  @@index([fileId])
+}
+
+model TaskAttachment {
+  taskId  String
+  task    WorkTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileId  String
+  file    FileRecord @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  addedAt DateTime   @default(now())
+
+  @@id([taskId, fileId])
+  @@index([fileId])
 }
 
 model WorkspaceAttachment {

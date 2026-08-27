@@ -56,6 +56,15 @@ Current, verified capabilities:
   permissions, and audited identity and administration changes.
 - PostgreSQL-backed employee, role, permission, branch, and department
   administration with bounded search and pagination where needed.
+- Authorized workspace files, persistent notifications, and a searchable audit
+  register backed by real company records.
+- Company discussions, scoped conversations, targeted announcements, read
+  state, and authenticated live updates with reconnect recovery.
+- Permission-scoped meetings with participants, RSVP, agendas, notes, minutes,
+  decisions, linked files, and meeting-sourced tasks.
+- Assigned task records with priority, status, due dates, comments, files,
+  notifications, audit history, and live updates. Workspace summaries are
+  calculated from these persisted records.
 - A protected, responsive workspace shell that shows authenticated company data
   and recoverable loading, empty, error, and permission states.
 
@@ -67,11 +76,10 @@ Committed delivery constraints:
 - The system remains a TypeScript modular monolith: Next.js web application,
   NestJS API, PostgreSQL, Prisma, and pnpm workspaces.
 - Attachments use local filesystem storage behind a replaceable storage
-  interface. Communication is persisted in PostgreSQL, with WebSockets planned
-  for live delivery and reconnect recovery.
-- Features are released in verified iterations. Files, notifications, broader
-  auditing, communication, meetings, and tasks are planned work, not current
-  product claims.
+  interface. Communication is persisted in PostgreSQL and uses authenticated
+  WebSockets for live delivery, with authoritative refetch after reconnect.
+- Features are released in verified iterations. Phase 1 production hardening is
+  the next planned slice; later business domains remain backlog items.
 - The exact company headcount, number of offices, and business-domain catalog
   are deliberately not product facts. Those previous values were mock data and
   must not be restored as static content.

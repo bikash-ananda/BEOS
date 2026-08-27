@@ -4,6 +4,8 @@ import {
   AlertTriangle,
   ArrowUpRight,
   Building2,
+  CalendarDays,
+  CheckSquare,
   RefreshCw,
   ShieldCheck,
   Users,
@@ -13,11 +15,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/components/session-boundary";
 import { Button } from "@/components/ui";
 import { apiFetch } from "@/lib/api";
-import type { Branch, ManagedUser, Page, Role } from "@/lib/types";
+import type { Branch, ManagedUser, Page, Role, WorkSummary } from "@/lib/types";
 
 export default function WorkspaceHome() {
   const user = useSession();
   const canManageUsers = user.permissions.includes("users.manage");
+  const canReadWork = user.permissions.includes("meetings.read") && user.permissions.includes("tasks.read");
   const users = useQuery({
     queryKey: ["users", "summary"],
     queryFn: () => apiFetch<Page<ManagedUser>>("/identity/users?limit=1"),
@@ -31,12 +34,18 @@ export default function WorkspaceHome() {
     queryKey: ["roles"],
     queryFn: () => apiFetch<Role[]>("/identity/roles"),
   });
+  const work = useQuery({
+    queryKey: ["workspace-summary", "work"],
+    queryFn: () => apiFetch<WorkSummary>("/work/summary"),
+    enabled: canReadWork,
+  });
   const firstName = user.fullName.split(" ")[0];
-  const summaryFailed = [users, branches, roles].some((query) => query.isError);
+  const summaryFailed = [users, branches, roles, ...(canReadWork ? [work] : [])].some((query) => query.isError);
   function retrySummary() {
     if (canManageUsers) void users.refetch();
     void branches.refetch();
     void roles.refetch();
+    if (canReadWork) void work.refetch();
   }
 
   return (
@@ -45,15 +54,15 @@ export default function WorkspaceHome() {
         <div>
           <h1>Good to see you, {firstName}.</h1>
           <p>
-            Your access and organization data are live. Business modules will
-            arrive through the next implementation phases.
+            Your current access, organization, meetings, and assigned work are
+            gathered from live company records.
           </p>
         </div>
       </section>
       <section
         className="scope-register"
         aria-labelledby="scope-heading"
-        aria-busy={branches.isPending || roles.isPending || users.isPending}
+        aria-busy={branches.isPending || roles.isPending || users.isPending || work.isPending}
       >
         <header>
           <h2 id="scope-heading">Workspace scope</h2>
@@ -61,7 +70,7 @@ export default function WorkspaceHome() {
             variant="quiet"
             onClick={retrySummary}
             disabled={
-              branches.isFetching || roles.isFetching || users.isFetching
+              branches.isFetching || roles.isFetching || users.isFetching || work.isFetching
             }
           >
             <RefreshCw />
@@ -129,6 +138,16 @@ export default function WorkspaceHome() {
           </div>
         </dl>
       </section>
+      {canReadWork && (
+        <section className="scope-register" aria-labelledby="work-summary-heading">
+          <header><h2 id="work-summary-heading">My work register</h2><Link href="/work">Open meetings &amp; tasks <ArrowUpRight /></Link></header>
+          <dl>
+            <div><dt><CalendarDays />Upcoming meetings</dt><dd>{work.isPending ? "Loading" : work.isError ? "Unavailable" : (work.data?.upcomingMeetings ?? 0)}</dd><small>Meetings you organize or attend</small></div>
+            <div><dt><CheckSquare />Open tasks</dt><dd>{work.isPending ? "Loading" : work.isError ? "Unavailable" : (work.data?.dueTasks ?? 0)}</dd><small>Created or assigned to you</small></div>
+            <div><dt><AlertTriangle />Overdue tasks</dt><dd>{work.isPending ? "Loading" : work.isError ? "Unavailable" : (work.data?.overdueTasks ?? 0)}</dd><small>Incomplete work past its due date</small></div>
+          </dl>
+        </section>
+      )}
       <section className="workspace-grid">
         <article className="paper-card identity-card">
           <h2>Your access record</h2>
@@ -150,11 +169,12 @@ export default function WorkspaceHome() {
           </dl>
         </article>
         <article className="paper-card next-card">
-          <h2>Your workspace is ready.</h2>
+          <h2>Continue company work.</h2>
           <p>
-            Company tools will appear here as they are enabled for your role.
-            Your current access and organization assignment are shown alongside.
+            Open the records available to your role. Empty registers remain
+            truthful until real work is scheduled, assigned, or shared.
           </p>
+          {canReadWork && <Link href="/work">Open work register <ArrowUpRight /></Link>}
           {canManageUsers && (
             <Link href="/admin">
               Open administration <ArrowUpRight />

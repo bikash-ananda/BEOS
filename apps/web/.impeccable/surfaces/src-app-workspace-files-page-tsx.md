@@ -1,8 +1,8 @@
 ---
 version: 1
-slug: "apps-web-src-app-workspace-files-page-tsx"
-primary_target: "apps/web/src/app/(workspace)/files/page.tsx"
-related_targets: ["apps/web/src/app/(workspace)/notifications/page.tsx","apps/web/src/components/workspace/workspace-shell.tsx"]
+slug: "src-app-workspace-files-page-tsx"
+primary_target: "src/app/(workspace)/files/page.tsx"
+related_targets: ["src/app/(workspace)/notifications/page.tsx","src/components/workspace/workspace-shell.tsx"]
 ---
 
 ## Scope and mode

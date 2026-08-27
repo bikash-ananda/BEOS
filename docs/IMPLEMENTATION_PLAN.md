@@ -89,14 +89,14 @@ code and verification pass.
 
 ## Iteration 7 — Phase 1 production release
 
-- [ ] Split the Prisma schema by domain using its supported multi-file layout.
-- [ ] Generate web API types from the OpenAPI contract.
-- [ ] Add verified database indexes, rate limits, upload quotas, and sanitized
+- [x] Split the Prisma schema by domain using its supported multi-file layout.
+- [x] Generate web API types from the OpenAPI contract.
+- [x] Add verified database indexes, rate limits, upload quotas, and sanitized
       production logging.
-- [ ] Add database integration, component, and browser journey coverage.
-- [ ] Test migrations against empty and populated pre-release databases.
-- [ ] Document deployment, migration, backup, restore, rollback, and bootstrap.
-- [ ] Remove remaining dead code, demo assets, and unused dependencies.
+- [x] Add database integration, component, and browser journey coverage.
+- [x] Test migrations against empty and populated pre-release databases.
+- [x] Document deployment, migration, backup, restore, rollback, and bootstrap.
+- [x] Remove remaining dead code, demo assets, and unused dependencies.
 
 ## Later product backlog
 
@@ -245,3 +245,39 @@ code and verification pass.
 - The single Impeccable detector pass reported zero findings. Protected-page
   screenshot capture was not repeated under the previously approved no-PNG
   workflow; the approved decision comparison remains in `.impeccable/mocks`.
+
+## Iteration 7 implementation notes
+
+- Prisma now uses its supported multi-file schema directory, grouped into nine
+  domain files. The CLI is configured through `prisma.config.ts`; splitting the
+  source introduced no database change or migration.
+- Nest's Swagger compiler emits a tracked OpenAPI document, and
+  `openapi-typescript` generates the web contract. Frontend paths are checked
+  against that contract at compile time, while `contract:check` fails when
+  either generated artifact is stale.
+- Existing query indexes were reconciled with the Phase 1 list, visibility,
+  unread, due-date, participant, assignee, and file-scope access patterns. No
+  speculative or redundant index migration was added. Global request limits,
+  stricter authentication limits, exact trusted-proxy hops, upload byte limits,
+  transactionally serialized per-user and workspace quotas, bounded request
+  IDs, and secret-redacted structured logging are configurable by environment.
+- Vitest and Testing Library now cover an interactive component contract.
+  Playwright verifies the login validation and submission journey in real
+  Firefox at desktop and 390px mobile widths; both journeys pass. The existing
+  database end-to-end suite now also covers middleware file-size and persistent
+  quota rejection, pending its explicitly approved isolated database run.
+- Production deployment, configuration, proxying, migration, bootstrap,
+  backup/restore, rollback, and isolated rehearsal requirements are documented.
+  Unreferenced Next.js starter SVGs and an obsolete migration console transcript
+  were removed. Direct production dependencies remain source-used; new tooling
+  is development-only: `dotenv`, `openapi-typescript`, Vitest, Testing Library,
+  jsdom, and Playwright.
+- The complete six-migration chain applied cleanly to isolated empty databases.
+  A custom-format snapshot of the local pre-release database restored into a
+  separate target with matching representative row counts, no pending
+  migrations, and current schema status. All three approved test databases and
+  the temporary dump were removed afterward; the original database remained at
+  its pre-test representative count.
+- Formatting, lint, API unit tests, 14 database end-to-end tests, web component
+  tests, generated-contract freshness, Prisma validation/generation, TypeScript
+  checking, desktop/mobile browser journeys, and both production builds pass.

@@ -1,0 +1,86 @@
+model AIAgent {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  model       String // gpt-4, claude, etc.
+  status      String // Active, Inactive, Training
+  purpose     String? // Accounting, Sales, Support, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       AITask[]
+}
+
+model AITask {
+  id            String           @id @default(cuid())
+  agentId       String
+  agent         AIAgent          @relation(fields: [agentId], references: [id])
+  title         String
+  description   String?
+  status        String // Pending, Running, Completed, Failed
+  result        String?
+  createdAt     DateTime         @default(now())
+  completedAt   DateTime?
+  conversations AIConversation[]
+}
+
+model AIConversation {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      AITask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  role      String // user, assistant
+  content   String
+  tokens    Int?
+  createdAt DateTime @default(now())
+}
+
+// ===== PHASE 7: IOT =====
+
+model Device {
+  id         String        @id @default(cuid())
+  deviceId   String        @unique
+  name       String
+  type       String // Sensor, Controller, Gateway, etc.
+  status     String // Online, Offline, Error, Maintenance
+  location   String?
+  branchId   String
+  branch     Branch        @relation(fields: [branchId], references: [id])
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  sensors    Sensor[]
+  dataPoints DataPoint[]
+  alerts     DeviceAlert[]
+}
+
+model Sensor {
+  id         String      @id @default(cuid())
+  deviceId   String
+  device     Device      @relation(fields: [deviceId], references: [id])
+  name       String
+  type       String // Temperature, Humidity, Pressure, Motion, etc.
+  unit       String // Celsius, %, Pa, etc.
+  minValue   Decimal?
+  maxValue   Decimal?
+  dataPoints DataPoint[]
+}
+
+model DataPoint {
+  id        String   @id @default(cuid())
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id])
+  sensorId  String
+  sensor    Sensor   @relation(fields: [sensorId], references: [id])
+  value     Decimal
+  timestamp DateTime
+  createdAt DateTime @default(now())
+}
+
+model DeviceAlert {
+  id         String    @id @default(cuid())
+  deviceId   String
+  device     Device    @relation(fields: [deviceId], references: [id])
+  type       String // Warning, Critical, Info
+  message    String
+  status     String // Active, Acknowledged, Resolved
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+}

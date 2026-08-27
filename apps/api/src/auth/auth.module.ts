@@ -25,7 +25,18 @@ import { PasswordService } from './password.service';
         secret: config.get('AUTH_ACCESS_SECRET', { infer: true }),
       }),
     }),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Environment, true>) => ({
+        throttlers: [
+          {
+            ttl: config.get('API_RATE_TTL_MS', { infer: true }),
+            limit: config.get('API_RATE_LIMIT', { infer: true }),
+          },
+        ],
+      }),
+    }),
   ],
   controllers: [AuthController, IdentityController],
   providers: [

@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  PayloadTooLargeException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma, WorkspaceFileScope } from '@prisma/client';
@@ -55,6 +56,8 @@ const binaryTypes = [
 @Injectable()
 export class FilesService {
   private readonly maxSize: number;
+  private readonly userQuota: number;
+  private readonly totalQuota: number;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -63,6 +66,8 @@ export class FilesService {
     @Inject(FILE_STORAGE) private readonly storage: FileStorage,
   ) {
     this.maxSize = config.get('FILE_MAX_SIZE_BYTES', { infer: true });
+    this.userQuota = config.get('FILE_USER_QUOTA_BYTES', { infer: true });
+    this.totalQuota = config.get('FILE_TOTAL_QUOTA_BYTES', { infer: true });
   }
 
   async list(user: AuthenticatedUser, query: FileListQueryDto) {
@@ -123,6 +128,32 @@ export class FilesService {
     const stored = await this.storage.write(file.buffer);
     try {
       return await this.prisma.$transaction(async (transaction) => {
+        // Quota decisions and metadata writes share one database lock so
+        // concurrent uploads cannot independently pass the same quota check.
+        await transaction.$queryRaw<Array<{ locked: boolean }>>`
+          SELECT pg_advisory_xact_lock(1111830355) IS NULL AS locked
+        `;
+        const [userUsage, totalUsage] = await Promise.all([
+          transaction.fileRecord.aggregate({
+            where: { uploadedById: user.id },
+            _sum: { sizeBytes: true },
+          }),
+          transaction.fileRecord.aggregate({ _sum: { sizeBytes: true } }),
+        ]);
+        if (
+          (userUsage._sum.sizeBytes ?? 0) + stored.sizeBytes >
+          this.userQuota
+        ) {
+          throw new PayloadTooLargeException('Your file storage quota is full');
+        }
+        if (
+          (totalUsage._sum.sizeBytes ?? 0) + stored.sizeBytes >
+          this.totalQuota
+        ) {
+          throw new PayloadTooLargeException(
+            'Workspace file storage quota is full',
+          );
+        }
         const record = await transaction.fileRecord.create({
           data: {
             originalName,

@@ -1,0 +1,76 @@
+model Employee {
+  id           String         @id @default(cuid())
+  empNo        String         @unique
+  firstName    String
+  lastName     String
+  email        String         @unique
+  phone        String?
+  dateOfBirth  DateTime?
+  joinDate     DateTime
+  status       String // Active, OnLeave, Terminated
+  position     String
+  salary       Decimal
+  salaryType   String // Monthly, Hourly, Contract
+  branchId     String
+  branch       Branch         @relation(fields: [branchId], references: [id])
+  departmentId String
+  department   Department     @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  payslips     Payslip[]
+  deductions   Deduction[]
+  leaves       LeaveRequest[]
+}
+
+model Payslip {
+  id             String             @id @default(cuid())
+  employeeId     String
+  employee       Employee           @relation(fields: [employeeId], references: [id])
+  month          Int // 1-12
+  year           Int
+  baseSalary     Decimal
+  totalAllowance Decimal
+  totalDeduction Decimal
+  netSalary      Decimal
+  status         String // Draft, Finalized, Paid
+  paymentDate    DateTime?
+  createdAt      DateTime           @default(now())
+  deductions     PayslipDeduction[]
+
+  @@unique([employeeId, month, year])
+}
+
+model PayslipDeduction {
+  id        String  @id @default(cuid())
+  payslipId String
+  payslip   Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  type      String // Tax, Insurance, Pension, Other
+  amount    Decimal
+}
+
+model Deduction {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  type       String // Tax, Insurance, Pension, Other
+  amount     Decimal
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model LeaveRequest {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  leaveType  String // Annual, Sick, Personal, Unpaid
+  startDate  DateTime
+  endDate    DateTime
+  days       Int
+  reason     String?
+  status     String // Pending, Approved, Rejected
+  approvedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ===== PHASE 4: INVENTORY =====

@@ -65,8 +65,10 @@ After the environment file and database are available, run:
 pnpm verify
 ```
 
-This checks formatting, lint, unit and API tests, the Prisma schema, and both
-production builds.
+This checks formatting, lint, API and web component tests, the generated API
+contract, the Prisma schema, and both production builds. Database end-to-end
+tests modify the dedicated test database; browser tests additionally require
+the pinned Playwright Firefox build.
 
 ## First administrator
 
@@ -99,12 +101,14 @@ decisions, and assigned tasks; and `/files` for authorized company documents.
 These surfaces use persisted records and show truthful empty states rather than
 demo data.
 
-## Current work
+## Phase 1 operations
 
-The Phase 1 workspace now includes identity, administration, files,
-notifications, communication, meetings, and tasks. Production hardening is the
-next iteration. Progress, decisions, and the next verified slice live in
+The Phase 1 workspace includes identity, administration, files, notifications,
+communication, meetings, and tasks. Progress and verification evidence live in
 [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
 
 Coordinated PostgreSQL and file recovery procedures live in
-[`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md).
+[`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md). Production configuration,
+deployment, migration, bootstrap, and rollback procedures live in
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md); isolated migration testing is defined
+in [`docs/MIGRATION_REHEARSAL.md`](docs/MIGRATION_REHEARSAL.md).

@@ -1,5 +1,5 @@
 import { Module, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 import { AdministrationModule } from './administration/administration.module';
@@ -7,7 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
-import { validateEnvironment } from './config/environment';
+import { Environment, validateEnvironment } from './config/environment';
 import { PrismaModule } from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
@@ -24,20 +24,35 @@ import { WorkModule } from './work/work.module';
       envFilePath: ['.env', '../../.env'],
       validate: validateEnvironment,
     }),
-    LoggerModule.forRoot({
-      forRoutes: [{ path: '{*path}', method: RequestMethod.ALL }],
-      pinoHttp: {
-        genReqId: (request, response) => {
-          const requestId = request.headers['x-request-id'] ?? randomUUID();
-          response.setHeader('x-request-id', requestId);
-          return requestId;
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Environment, true>) => ({
+        forRoutes: [{ path: '{*path}', method: RequestMethod.ALL }],
+        pinoHttp: {
+          level: config.get('LOG_LEVEL', { infer: true }),
+          genReqId: (request, response) => {
+            const supplied = request.headers['x-request-id'];
+            const requestId =
+              typeof supplied === 'string' && supplied.length <= 128
+                ? supplied
+                : randomUUID();
+            response.setHeader('x-request-id', requestId);
+            return requestId;
+          },
+          redact: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.headers.x-api-key',
+            'req.query.token',
+            'req.body.password',
+            'req.body.currentPassword',
+            'req.body.newPassword',
+            'req.body.token',
+            'res.headers.set-cookie',
+          ],
         },
-        redact: [
-          'req.headers.authorization',
-          'req.headers.cookie',
-          'res.headers.set-cookie',
-        ],
-      },
+      }),
     }),
     PrismaModule,
     AuditModule,

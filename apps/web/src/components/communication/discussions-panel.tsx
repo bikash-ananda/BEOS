@@ -47,7 +47,9 @@ export function DiscussionsPanel({ user }: { user: AuthUser }) {
   );
 
   async function refresh() {
-    await client.invalidateQueries({ queryKey: ["communication", "discussions"] });
+    await client.invalidateQueries({
+      queryKey: ["communication", "discussions"],
+    });
   }
 
   return (
@@ -98,7 +100,7 @@ export function DiscussionsPanel({ user }: { user: AuthUser }) {
                   <strong>{discussion.title}</strong>
                   <span>{discussion.author.fullName}</span>
                   <small>
-                    {discussion._count.comments} comments · {" "}
+                    {discussion._count.comments} comments ·{" "}
                     {dateFormatter.format(new Date(discussion.createdAt))}
                   </small>
                 </button>
@@ -221,7 +223,7 @@ function DiscussionDetail({
         <div>
           <h2>{discussion.title}</h2>
           <p>
-            {discussion.author.fullName} · {" "}
+            {discussion.author.fullName} ·{" "}
             {dateFormatter.format(new Date(discussion.createdAt))}
             {discussion.editedAt ? " · Edited" : ""}
           </p>
@@ -353,7 +355,11 @@ function CommentRecord({
           />
           <div className="record-actions">
             <Button disabled={!body.trim() || mutation.isPending}>Save</Button>
-            <Button variant="quiet" type="button" onClick={() => setEditing(false)}>
+            <Button
+              variant="quiet"
+              type="button"
+              onClick={() => setEditing(false)}
+            >
               Cancel
             </Button>
           </div>
@@ -399,14 +405,15 @@ function DiscussionForm({
   const [title, setTitle] = useState(discussion?.title ?? "");
   const [body, setBody] = useState(discussion?.body ?? "");
   const save = useMutation({
-    mutationFn: () =>
-      apiFetch<Discussion>(
-        `/communication/discussions${discussion ? `/${discussion.id}` : ""}`,
-        {
-          method: discussion ? "PATCH" : "POST",
-          ...jsonBody({ title: title.trim(), body: body.trim() }),
-        },
-      ),
+    mutationFn: () => {
+      const endpoint = discussion
+        ? (`/communication/discussions/${discussion.id}` as const)
+        : ("/communication/discussions" as const);
+      return apiFetch<Discussion>(endpoint, {
+        method: discussion ? "PATCH" : "POST",
+        ...jsonBody({ title: title.trim(), body: body.trim() }),
+      });
+    },
     onSuccess: onSaved,
     onError: (error: Error) => toast.error(error.message),
   });
@@ -436,7 +443,9 @@ function DiscussionForm({
         />
       </label>
       <div className="record-actions">
-        <Button disabled={title.trim().length < 3 || !body.trim() || save.isPending}>
+        <Button
+          disabled={title.trim().length < 3 || !body.trim() || save.isPending}
+        >
           {save.isPending ? "Saving…" : discussion ? "Save changes" : "Publish"}
         </Button>
         <Button type="button" variant="quiet" onClick={onCancel}>
@@ -462,11 +471,21 @@ function Pager({
   if (pages <= 1) return null;
   return (
     <nav className="pagination" aria-label="Discussion pages">
-      <Button variant="quiet" disabled={page === 1} onClick={() => onPage(page - 1)}>
+      <Button
+        variant="quiet"
+        disabled={page === 1}
+        onClick={() => onPage(page - 1)}
+      >
         Previous
       </Button>
-      <span>Page {page} of {pages}</span>
-      <Button variant="quiet" disabled={page === pages} onClick={() => onPage(page + 1)}>
+      <span>
+        Page {page} of {pages}
+      </span>
+      <Button
+        variant="quiet"
+        disabled={page === pages}
+        onClick={() => onPage(page + 1)}
+      >
         Next
       </Button>
     </nav>

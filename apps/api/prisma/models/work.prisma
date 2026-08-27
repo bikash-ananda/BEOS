@@ -1,0 +1,196 @@
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum MeetingRsvp {
+  PENDING
+  ACCEPTED
+  DECLINED
+  TENTATIVE
+}
+
+enum MeetingNoteKind {
+  NOTE
+  MINUTE
+}
+
+model Meeting {
+  id           String               @id @default(cuid())
+  title        String
+  description  String?
+  location     String?
+  startsAt     DateTime
+  endsAt       DateTime
+  status       MeetingStatus        @default(SCHEDULED)
+  organizerId  String
+  organizer    User                 @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  participants MeetingParticipant[]
+  agendaItems  MeetingAgendaItem[]
+  notes        MeetingNote[]
+  decisions    MeetingDecision[]
+  tasks        WorkTask[]
+  attachments  MeetingAttachment[]
+
+  @@index([startsAt, status])
+  @@index([organizerId, startsAt])
+}
+
+model MeetingParticipant {
+  meetingId   String
+  meeting     Meeting     @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rsvp        MeetingRsvp @default(PENDING)
+  respondedAt DateTime?
+
+  @@id([meetingId, userId])
+  @@index([userId, rsvp])
+}
+
+model MeetingAgendaItem {
+  id          String            @id @default(cuid())
+  meetingId   String
+  meeting     Meeting           @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title       String
+  details     String?
+  position    Int
+  createdById String
+  createdBy   User              @relation("AgendaItemCreator", fields: [createdById], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  notes       MeetingNote[]
+  decisions   MeetingDecision[]
+  tasks       WorkTask[]
+
+  @@unique([meetingId, position])
+  @@index([createdById])
+}
+
+model MeetingNote {
+  id           String             @id @default(cuid())
+  meetingId    String
+  meeting      Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User               @relation(fields: [authorId], references: [id])
+  kind         MeetingNoteKind    @default(NOTE)
+  body         String
+  editedAt     DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([meetingId, kind, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+model MeetingDecision {
+  id           String             @id @default(cuid())
+  meetingId    String
+  meeting      Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User               @relation(fields: [authorId], references: [id])
+  body         String
+  editedAt     DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([meetingId, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  CANCELLED
+}
+
+model WorkTask {
+  id           String             @id @default(cuid())
+  title        String
+  description  String?
+  priority     TaskPriority       @default(NORMAL)
+  status       TaskStatus         @default(NOT_STARTED)
+  dueAt        DateTime?
+  completedAt  DateTime?
+  meetingId    String?
+  meeting      Meeting?           @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  agendaItemId String?
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  createdById  String
+  createdBy    User               @relation("TaskCreator", fields: [createdById], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  assignees    TaskAssignee[]
+  comments     TaskComment[]
+  attachments  TaskAttachment[]
+
+  @@index([status, dueAt])
+  @@index([createdById, createdAt])
+  @@index([meetingId, createdAt])
+  @@index([agendaItemId, createdAt])
+}
+
+model TaskAssignee {
+  taskId     String
+  task       WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@id([taskId, userId])
+  @@index([userId, assignedAt])
+}
+
+model TaskComment {
+  id        String    @id @default(cuid())
+  taskId    String
+  task      WorkTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  body      String
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([taskId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model MeetingAttachment {
+  meetingId String
+  meeting   Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  fileId    String
+  file      FileRecord @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  addedAt   DateTime   @default(now())
+
+  @@id([meetingId, fileId])
+  @@index([fileId])
+}
+
+model TaskAttachment {
+  taskId  String
+  task    WorkTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileId  String
+  file    FileRecord @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  addedAt DateTime   @default(now())
+
+  @@id([taskId, fileId])
+  @@index([fileId])
+}

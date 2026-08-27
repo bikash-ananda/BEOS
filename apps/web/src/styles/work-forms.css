@@ -1,0 +1,111 @@
+.task-comments textarea,
+.inline-entry textarea,
+.inline-entry input,
+.work-composer input,
+.work-composer select,
+.work-composer textarea {
+  width: 100%;
+  border: 1px solid var(--line-dark);
+  border-radius: 0;
+  background: var(--paper-light);
+  padding: 0.7rem;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.work-attachments {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.7rem 1.2rem;
+  align-items: center;
+}
+.attachment-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+}
+.work-attachments a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--signal-dark);
+}
+.work-attachments svg {
+  width: 1rem;
+}
+.attachment-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.attachment-picker select {
+  min-height: 2.3rem;
+  max-width: 16rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+  padding: 0 0.55rem;
+  color: var(--ink);
+}
+.attachment-picker .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.inline-entry,
+.work-composer {
+  display: grid;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line-dark);
+  padding: 1.2rem 1.4rem;
+  background: color-mix(in srgb, var(--paper) 55%, var(--paper-light));
+}
+.inline-entry label,
+.work-composer label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.inline-entry label > span,
+.work-composer label > span,
+.work-people legend {
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.inline-entry > div,
+.work-composer > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.work-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.work-people {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  padding: 1rem;
+}
+.work-people legend {
+  padding: 0 0.35rem;
+}
+.work-people label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+.work-people label span {
+  display: grid;
+}
+.work-people small {
+  color: var(--ink-soft);
+  font-weight: 400;
+}

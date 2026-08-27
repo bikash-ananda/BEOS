@@ -52,7 +52,10 @@ PostgreSQL is exposed only on `127.0.0.1:5432` for local development.
 `WEB_ORIGIN` is the API's allowlist for credentialed browser requests.
 `BACKEND_URL` is server-only Next.js configuration used to proxy `/api`
 requests to the NestJS service, keeping authentication cookies same-origin in
-the browser. Change both values to match the deployed web and API origins.
+the browser. `NEXT_PUBLIC_API_ORIGIN` selects the Socket.IO origin in local or
+split-origin deployments. A same-origin production proxy can leave it empty,
+but must forward WebSocket upgrades for `/api/v1/socket.io`. Change these
+values to match the deployed web and API origins.
 
 ## Verification
 
@@ -90,10 +93,17 @@ After signing in, administrators can create branches and departments, define
 custom roles, generate one-time invitation and password-reset links, update
 employee assignments, and disable accounts from `/admin`.
 
+Employees with the corresponding permissions can use `/communication` for
+company discussions, conversations, and announcements; `/work` for meetings,
+decisions, and assigned tasks; and `/files` for authorized company documents.
+These surfaces use persisted records and show truthful empty states rather than
+demo data.
+
 ## Current work
 
-Phase 1 builds Identity & Access and the Company Workspace before later
-business modules. Progress, decisions, and the next verified slice live in
+The Phase 1 workspace now includes identity, administration, files,
+notifications, communication, meetings, and tasks. Production hardening is the
+next iteration. Progress, decisions, and the next verified slice live in
 [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
 
 Coordinated PostgreSQL and file recovery procedures live in

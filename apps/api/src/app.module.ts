@@ -12,6 +12,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
 import { RbacModule } from './rbac/rbac.module';
+import { CommunicationModule } from './communication/communication.module';
+import { WorkspaceLiveModule } from './live/workspace-live.module';
+import { WorkModule } from './work/work.module';
 
 @Module({
   imports: [
@@ -40,6 +43,9 @@ import { RbacModule } from './rbac/rbac.module';
     AuditModule,
     NotificationsModule,
     FilesModule,
+    WorkspaceLiveModule,
+    CommunicationModule,
+    WorkModule,
     RbacModule,
     AuthModule,
     AdministrationModule,

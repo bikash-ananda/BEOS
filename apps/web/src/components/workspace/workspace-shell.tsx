@@ -2,11 +2,13 @@
 
 import {
   Bell,
+  BriefcaseBusiness,
   Building2,
   FileText,
   LayoutGrid,
   LogOut,
   Menu,
+  MessagesSquare,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -28,6 +30,8 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
   const firstNavigationLink = useRef<HTMLAnchorElement>(null);
   const notificationButton = useRef<HTMLButtonElement>(null);
   const canReadFiles = user.permissions.includes("files.read");
+  const canReadCommunication = user.permissions.includes("communication.read");
+  const canReadWork = user.permissions.includes("meetings.read") && user.permissions.includes("tasks.read");
   const canAdmin = user.permissions.some(
     (permission) =>
       permission.endsWith(".manage") || permission === "audit.read",
@@ -111,6 +115,26 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             >
               <FileText />
               Files
+            </Link>
+          )}
+          {canReadCommunication && (
+            <Link
+              className={pathname.startsWith("/communication") ? "active" : ""}
+              href="/communication"
+              onClick={() => setOpen(false)}
+            >
+              <MessagesSquare />
+              Communication
+            </Link>
+          )}
+          {canReadWork && (
+            <Link
+              className={pathname.startsWith("/work") ? "active" : ""}
+              href="/work"
+              onClick={() => setOpen(false)}
+            >
+              <BriefcaseBusiness />
+              Meetings &amp; Tasks
             </Link>
           )}
           <Link
@@ -203,5 +227,7 @@ function workspaceCoordinate(pathname: string) {
   if (pathname.startsWith("/admin")) return "ADMIN";
   if (pathname.startsWith("/files")) return "FILES";
   if (pathname.startsWith("/notifications")) return "NOTIFICATIONS";
+  if (pathname.startsWith("/communication")) return "COMMUNICATION";
+  if (pathname.startsWith("/work")) return "WORK";
   return "HOME";
 }

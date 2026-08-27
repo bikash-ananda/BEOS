@@ -39,5 +39,6 @@ import { PasswordService } from './password.service';
     { provide: APP_GUARD, useClass: AccessTokenGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
   ],
+  exports: [AuthTokenService],
 })
 export class AuthModule {}

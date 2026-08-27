@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import { ACCESS_COOKIE } from '../auth/auth.constants';
 import { ApiExceptionFilter } from '../common/filters/api-exception.filter';
 import { Environment, parseWebOrigins } from '../config/environment';
+import { ConfiguredSocketIoAdapter } from '../live/configured-socket-io.adapter';
 
 export function configureApp(app: INestApplication): void {
   const config = app.get(ConfigService<Environment, true>);
@@ -17,6 +18,7 @@ export function configureApp(app: INestApplication): void {
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
   app.enableCors({ origin: origins, credentials: true });
+  app.useWebSocketAdapter(new ConfiguredSocketIoAdapter(app, origins));
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,

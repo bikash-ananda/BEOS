@@ -1,6 +1,6 @@
 # BEOS Implementation Plan
 
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 
 This is the living implementation tracker for turning BEOS into a usable,
 production-oriented system. Checkboxes are completed only after the relevant
@@ -74,18 +74,18 @@ code and verification pass.
 
 ## Iteration 5 — Workspace communication
 
-- [ ] Add company discussions, comments, reactions, editing, and soft deletion.
-- [ ] Add company, department, private-group, and direct conversations.
-- [ ] Add targeted announcements and read receipts.
-- [ ] Add authenticated WebSocket updates with reconnect/refetch recovery.
-- [ ] Verify membership, authorization, ordering, pagination, and reconnects.
+- [x] Add company discussions, comments, reactions, editing, and soft deletion.
+- [x] Add company, department, private-group, and direct conversations.
+- [x] Add targeted announcements and read receipts.
+- [x] Add authenticated WebSocket updates with reconnect/refetch recovery.
+- [x] Verify membership, authorization, ordering, pagination, and reconnects.
 
 ## Iteration 6 — Meetings and tasks
 
-- [ ] Add meetings, participants, RSVP, agendas, notes, minutes, and decisions.
-- [ ] Add tasks, assignees, priorities, due dates, comments, and attachments.
-- [ ] Connect assignments and changes to notifications and live updates.
-- [ ] Drive Workspace summaries entirely from persisted Phase 1 records.
+- [x] Add meetings, participants, RSVP, agendas, notes, minutes, and decisions.
+- [x] Add tasks, assignees, priorities, due dates, comments, and attachments.
+- [x] Connect assignments and changes to notifications and live updates.
+- [x] Drive Workspace summaries entirely from persisted Phase 1 records.
 
 ## Iteration 7 — Phase 1 production release
 
@@ -189,3 +189,59 @@ code and verification pass.
   than kept in one growing workspace stylesheet. No dependency was added in
   this iteration; the implementation uses the existing Nest platform support
   and Node standard-library primitives.
+
+## Iteration 5 implementation notes
+
+- Communication records now live in PostgreSQL. Discussions support comments,
+  reactions, author or manager editing, and soft deletion; conversation types
+  cover company, department, private-group, and direct membership policies.
+- Announcements snapshot their authorized company, branch, department, or
+  selected-user audience when published. Recipient read state, notifications,
+  and audit records commit transactionally with the announcement change.
+- The authenticated Socket.IO namespace reads the existing HttpOnly access
+  cookie, joins per-user delivery rooms, and signals reconnect readiness. The
+  web client refetches authoritative communication and notification data after
+  readiness or change events instead of treating live messages as durable
+  state.
+- Communication authorization is enforced by dedicated read, write, manage,
+  and announcement permissions. Private and direct conversations remain hidden
+  from non-members, including otherwise privileged administrators.
+- Added established Socket.IO integration packages rather than a custom live
+  protocol: `@nestjs/websockets`, `@nestjs/platform-socket.io`, `socket.io`, and
+  `cookie` in the API; `socket.io-client` in the web app and API test tooling.
+- End-to-end coverage verifies discussion lifecycle, private membership,
+  message ordering and edits, receipts, targeted announcements, authenticated
+  live delivery, rejected unauthenticated sockets, and reconnect recovery.
+  Communication forms and workbench/read styles are kept in separate files,
+  while conversation visibility and recipient policy live in a focused service.
+- The approved Engineering Field Ledger direction remains intact. The single
+  Impeccable static detector pass reported no findings; protected visual capture
+  was not repeated under the previously approved no-PNG workflow.
+
+## Iteration 6 implementation notes
+
+- Meetings and tasks now use normalized PostgreSQL records for participants,
+  RSVP, agendas, notes, minutes, decisions, assignees, comments, and file links.
+  The migration was applied without destructive operations and Prisma reports
+  all six migrations up to date.
+- Meeting and task visibility follows participation, assignment, linked-meeting,
+  branch, and explicit management permissions. Invitations and assignments
+  create persistent notifications; significant changes are audited.
+- The shared authenticated `/workspace` Socket.IO namespace now carries live
+  communication and work invalidation events. Reconnect readiness triggers an
+  authoritative refetch instead of treating socket payloads as durable state.
+- The approved Twin Registers interface at `/work` provides searchable and
+  date-filtered meeting and task registers, a shared record pane, lifecycle
+  controls, meeting outcomes, task comments, deep links, and workspace-file
+  linking. The overview counts upcoming, open, and overdue work from persisted
+  records and remains truthful when registers are empty.
+- Work UI responsibilities are divided across workspace coordination, meeting
+  records, task records, forms, attachment controls, shared record primitives,
+  and three focused stylesheets. No new dependency was needed for Iteration 6.
+- End-to-end coverage verifies meeting privacy and outcomes, task membership and
+  lifecycle, file links, comments, notifications-related access, and live work
+  events. The full repository verification passed: 7 unit tests, 14 end-to-end
+  tests, Prisma validation, lint, formatting, and both production builds.
+- The single Impeccable detector pass reported zero findings. Protected-page
+  screenshot capture was not repeated under the previously approved no-PNG
+  workflow; the approved decision comparison remains in `.impeccable/mocks`.

@@ -5,6 +5,11 @@
 @import "../styles/notifications.css";
 @import "../styles/files.css";
 @import "../styles/audit.css";
+@import "../styles/communication.css";
+@import "../styles/communication-forms.css";
+@import "../styles/work-layout.css";
+@import "../styles/work-records.css";
+@import "../styles/work-forms.css";
 
 :root {
   --paper: #f1eee4;

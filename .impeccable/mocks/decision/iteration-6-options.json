@@ -1,0 +1,48 @@
+{
+  "title": "Choose the Meetings & Tasks workbench",
+  "question": "Which structure should carry the meeting-to-completion workflow?",
+  "options": [
+    {
+      "id": "twin-registers",
+      "label": "Twin Registers",
+      "kicker": "THE ROLL",
+      "lineage": "engineering coordination register",
+      "thesis": "Meetings and tasks remain distinct ruled registers joined by one focused record pane.",
+      "palette": ["#f1eee4", "#faf8f1", "#102b45", "#e55a2f"],
+      "materials": ["engineering paper", "inked register rules"],
+      "viewport": "A compact date rail leads into parallel meeting and task registers, with the selected record expanding into a shared working pane.",
+      "risk": "The parallel registers require disciplined density to avoid feeling like two unrelated modules.",
+      "comp": ".impeccable/mocks/decision/iteration-6-twin-registers.png"
+    },
+    {
+      "id": "my-commitments",
+      "label": "My Commitments",
+      "lineage": "personal field action sheet",
+      "thesis": "The employee's next actions lead; meetings appear as the source and evidence behind each commitment.",
+      "palette": ["#f1eee4", "#faf8f1", "#102b45", "#e55a2f"],
+      "materials": ["action sheet", "status notation"],
+      "viewport": "A due-now commitment queue owns the first view, with selected task detail, meeting origin, comments, and attachments arranged beside it.",
+      "risk": "Meeting organizers may need one extra step to reach agenda and minutes authoring.",
+      "comp": ".impeccable/mocks/decision/iteration-6-my-commitments.png"
+    },
+    {
+      "id": "decision-chain",
+      "label": "Decision Chain",
+      "lineage": "minutes-to-action trace",
+      "thesis": "Every agenda item visibly resolves into a note, decision, or assigned task so follow-through never loses its origin.",
+      "palette": ["#f1eee4", "#faf8f1", "#102b45", "#e55a2f"],
+      "materials": ["meeting docket", "traceability line"],
+      "viewport": "A meeting register opens into a vertical agenda trace where decisions and assigned tasks branch directly from each discussed item.",
+      "risk": "The trace is exceptional for meeting work but less efficient for scanning unrelated tasks across many meetings.",
+      "comp": ".impeccable/mocks/decision/iteration-6-decision-chain.png"
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "steer": true
+}

@@ -163,6 +163,34 @@ describe('Workspace files, notifications, and audit (e2e)', () => {
         }),
       ]),
     );
+
+    await admin
+      .post('/api/v1/workspace/files')
+      .query({ scope: 'COMPANY' })
+      .attach(
+        'file',
+        Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(1_100, 'x')]),
+        'quota-fill.pdf',
+      )
+      .expect(201);
+    await admin
+      .post('/api/v1/workspace/files')
+      .query({ scope: 'COMPANY' })
+      .attach(
+        'file',
+        Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(500, 'x')]),
+        'quota-overflow.pdf',
+      )
+      .expect(413);
+    await admin
+      .post('/api/v1/workspace/files')
+      .query({ scope: 'COMPANY' })
+      .attach(
+        'file',
+        Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(1_300, 'x')]),
+        'size-overflow.pdf',
+      )
+      .expect(413);
   });
 
   it('persists unread state and supports read and read-all actions', async () => {

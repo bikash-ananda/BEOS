@@ -1,0 +1,55 @@
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  city      String?
+  country   String?
+  status    String // Active, Inactive, Blocked
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Order {
+  id            String         @id @default(cuid())
+  orderNo       String         @unique
+  customerId    String
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  totalAmount   Decimal
+  taxAmount     Decimal
+  shippingCost  Decimal
+  status        String // Pending, Confirmed, Shipped, Delivered, Cancelled
+  paymentStatus String // Unpaid, Partial, Paid
+  orderDate     DateTime       @default(now())
+  shippedDate   DateTime?
+  deliveredDate DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  items         OrderItem[]
+  payments      OrderPayment[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sku       String
+  quantity  Int
+  unitPrice Decimal
+  total     Decimal
+}
+
+model OrderPayment {
+  id        String    @id @default(cuid())
+  orderId   String
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount    Decimal
+  method    String // Card, Bank, Cash, Online
+  status    String // Pending, Confirmed, Failed, Refunded
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// ===== PHASE 6: AI AGENTS =====

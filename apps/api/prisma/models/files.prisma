@@ -1,0 +1,39 @@
+enum WorkspaceFileScope {
+  COMPANY
+  BRANCH
+  DEPARTMENT
+}
+
+model FileRecord {
+  id                   String                @id @default(cuid())
+  originalName         String
+  storageKey           String                @unique
+  mimeType             String
+  sizeBytes            Int
+  sha256               String
+  uploadedById         String
+  uploadedBy           User                  @relation("FileUploader", fields: [uploadedById], references: [id])
+  createdAt            DateTime              @default(now())
+  workspaceAttachments WorkspaceAttachment[]
+  meetingAttachments   MeetingAttachment[]
+  taskAttachments      TaskAttachment[]
+
+  @@index([uploadedById, createdAt])
+  @@index([createdAt])
+}
+
+model WorkspaceAttachment {
+  id           String             @id @default(cuid())
+  fileId       String             @unique
+  file         FileRecord         @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  scope        WorkspaceFileScope
+  branchId     String?
+  branch       Branch?            @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?        @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime           @default(now())
+
+  @@index([scope, createdAt])
+  @@index([branchId, createdAt])
+  @@index([departmentId, createdAt])
+}

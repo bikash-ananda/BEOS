@@ -1,4 +1,17 @@
+import type { paths } from "./generated/api-schema";
+
 const API_ROOT = "/api/v1";
+
+type ReplacePathParameters<Value extends string> =
+  Value extends `${infer Start}{${string}}${infer End}`
+    ? `${Start}${string}${ReplacePathParameters<End>}`
+    : Value;
+type ContractPath = keyof paths & string;
+type ClientPathFor<Value extends string> = Value extends `/api/v1${infer Path}`
+  ? ReplacePathParameters<Path>
+  : never;
+type ClientPath = ClientPathFor<ContractPath>;
+export type ApiPath = ClientPath | `${ClientPath}?${string}`;
 
 interface ApiErrorBody {
   message?: string | string[];
@@ -23,7 +36,7 @@ async function parseError(response: Response): Promise<string> {
 }
 
 export async function apiFetch<T>(
-  path: string,
+  path: ApiPath,
   init: RequestInit = {},
   retry = true,
 ): Promise<T> {

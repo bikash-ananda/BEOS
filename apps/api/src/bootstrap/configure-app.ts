@@ -1,17 +1,24 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import cookieParser from 'cookie-parser';
+import type { Express } from 'express';
 import { ACCESS_COOKIE } from '../auth/auth.constants';
 import { ApiExceptionFilter } from '../common/filters/api-exception.filter';
 import { Environment, parseWebOrigins } from '../config/environment';
 import { ConfiguredSocketIoAdapter } from '../live/configured-socket-io.adapter';
 
-export function configureApp(app: INestApplication): void {
+export function configureApp(app: INestApplication): OpenAPIObject {
   const config = app.get(ConfigService<Environment, true>);
   const origins = parseWebOrigins(config.get('WEB_ORIGIN', { infer: true }));
+  const trustedProxyHops = config.get('TRUST_PROXY_HOPS', { infer: true });
+
+  if (trustedProxyHops > 0) {
+    const expressApp = app.getHttpAdapter().getInstance() as Express;
+    expressApp.set('trust proxy', trustedProxyHops);
+  }
 
   app.useLogger(app.get(Logger));
   app.use(cookieParser());
@@ -36,4 +43,5 @@ export function configureApp(app: INestApplication): void {
     .build();
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api/docs', app, document);
+  return document;
 }

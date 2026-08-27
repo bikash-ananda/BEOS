@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { apiFetch, jsonBody } from "@/lib/api";
+import type { ApiPath } from "@/lib/api";
 import type { Branch, Department } from "@/lib/types";
 import { Button, EmptyState, Field, QueryGate, Status } from "../ui";
 
@@ -38,7 +39,7 @@ export function OrganizationPanel() {
       method,
       body,
     }: {
-      path: string;
+      path: ApiPath;
       method: "POST" | "PATCH";
       body: unknown;
     }) => apiFetch(path, { method, ...jsonBody(body) }),

@@ -5,6 +5,7 @@ import { Paperclip } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { apiFetch, jsonBody } from "@/lib/api";
+import type { ApiPath } from "@/lib/api";
 import type { Page, WorkAttachment, WorkspaceFile } from "@/lib/types";
 import { Button } from "../ui";
 
@@ -13,7 +14,7 @@ export function AttachmentPicker({
   attachments,
   onLinked,
 }: {
-  endpoint: string;
+  endpoint: ApiPath;
   attachments: WorkAttachment[];
   onLinked: () => Promise<unknown> | unknown;
 }) {

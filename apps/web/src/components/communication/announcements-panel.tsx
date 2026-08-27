@@ -33,7 +33,9 @@ export function AnnouncementsPanel({ user }: { user: AuthUser }) {
     queryFn: () => {
       const query = new URLSearchParams({ limit: "25" });
       if (deferredSearch) query.set("search", deferredSearch);
-      return apiFetch<Page<Announcement>>(`/communication/announcements?${query}`);
+      return apiFetch<Page<Announcement>>(
+        `/communication/announcements?${query}`,
+      );
     },
   });
   const markRead = useMutation({
@@ -54,7 +56,10 @@ export function AnnouncementsPanel({ user }: { user: AuthUser }) {
   };
 
   return (
-    <section className="announcement-register" aria-labelledby="announcements-heading">
+    <section
+      className="announcement-register"
+      aria-labelledby="announcements-heading"
+    >
       <header>
         <div>
           <h2 id="announcements-heading">Announcements</h2>
@@ -109,7 +114,7 @@ export function AnnouncementsPanel({ user }: { user: AuthUser }) {
                   <div>
                     <h3>{announcement.title}</h3>
                     <p>
-                      {announcement.author.fullName} · {" "}
+                      {announcement.author.fullName} ·{" "}
                       {dateFormatter.format(new Date(announcement.createdAt))}
                       {announcement.editedAt ? " · Edited" : ""}
                     </p>
@@ -129,7 +134,10 @@ export function AnnouncementsPanel({ user }: { user: AuthUser }) {
                   )}
                   {canManage && (
                     <div className="record-actions">
-                      <Button variant="quiet" onClick={() => setEditing(announcement)}>
+                      <Button
+                        variant="quiet"
+                        onClick={() => setEditing(announcement)}
+                      >
                         Edit
                       </Button>
                       <Button
@@ -176,7 +184,8 @@ function AnnouncementForm({
   const [userIds, setUserIds] = useState<string[]>([]);
   const people = useQuery({
     queryKey: ["communication", "people", "announcement-form"],
-    queryFn: () => apiFetch<Page<CommunicationPerson>>("/communication/people?limit=100"),
+    queryFn: () =>
+      apiFetch<Page<CommunicationPerson>>("/communication/people?limit=100"),
     enabled: !announcement && target === "USERS",
   });
   const branches = useQuery({
@@ -190,8 +199,11 @@ function AnnouncementForm({
     enabled: !announcement && !user.branch && target === "DEPARTMENT",
   });
   const save = useMutation({
-    mutationFn: () =>
-      apiFetch(`/communication/announcements${announcement ? `/${announcement.id}` : ""}`, {
+    mutationFn: () => {
+      const endpoint = announcement
+        ? (`/communication/announcements/${announcement.id}` as const)
+        : ("/communication/announcements" as const);
+      return apiFetch(endpoint, {
         method: announcement ? "PATCH" : "POST",
         ...jsonBody(
           announcement
@@ -205,7 +217,8 @@ function AnnouncementForm({
                 ...(target === "USERS" && { userIds }),
               },
         ),
-      }),
+      });
+    },
     onSuccess: onSaved,
     onError: (error: Error) => toast.error(error.message),
   });
@@ -226,15 +239,28 @@ function AnnouncementForm({
     >
       <label>
         <span>Title</span>
-        <input value={title} maxLength={160} onChange={(event) => setTitle(event.target.value)} />
+        <input
+          value={title}
+          maxLength={160}
+          onChange={(event) => setTitle(event.target.value)}
+        />
       </label>
       {!announcement && (
         <label>
           <span>Audience</span>
-          <select value={target} onChange={(event) => setTarget(event.target.value as AnnouncementTarget)}>
+          <select
+            value={target}
+            onChange={(event) =>
+              setTarget(event.target.value as AnnouncementTarget)
+            }
+          >
             {!user.branch && <option value="COMPANY">Company</option>}
-            {(!user.branch || user.branch) && <option value="BRANCH">Branch</option>}
-            {(!user.branch || user.department) && <option value="DEPARTMENT">Department</option>}
+            {(!user.branch || user.branch) && (
+              <option value="BRANCH">Branch</option>
+            )}
+            {(!user.branch || user.department) && (
+              <option value="DEPARTMENT">Department</option>
+            )}
             <option value="USERS">Selected people</option>
           </select>
         </label>
@@ -242,24 +268,36 @@ function AnnouncementForm({
       {!announcement && target === "BRANCH" && !user.branch && (
         <label>
           <span>Branch</span>
-          <select value={branchId} onChange={(event) => setBranchId(event.target.value)}>
+          <select
+            value={branchId}
+            onChange={(event) => setBranchId(event.target.value)}
+          >
             <option value="">Choose a branch</option>
-            {branches.data?.filter((branch) => branch.isActive).map((branch) => (
-              <option key={branch.id} value={branch.id}>{branch.name}</option>
-            ))}
+            {branches.data
+              ?.filter((branch) => branch.isActive)
+              .map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
           </select>
         </label>
       )}
       {!announcement && target === "DEPARTMENT" && !user.department && (
         <label>
           <span>Department</span>
-          <select value={departmentId} onChange={(event) => setDepartmentId(event.target.value)}>
+          <select
+            value={departmentId}
+            onChange={(event) => setDepartmentId(event.target.value)}
+          >
             <option value="">Choose a department</option>
-            {departments.data?.filter((department) => department.isActive).map((department) => (
-              <option key={department.id} value={department.id}>
-                {department.name} — {department.branch.name}
-              </option>
-            ))}
+            {departments.data
+              ?.filter((department) => department.isActive)
+              .map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name} — {department.branch.name}
+                </option>
+              ))}
           </select>
         </label>
       )}
@@ -280,7 +318,14 @@ function AnnouncementForm({
                     )
                   }
                 />
-                <span><strong>{person.fullName}</strong><small>{person.department?.name ?? person.branch?.name ?? "Company-wide"}</small></span>
+                <span>
+                  <strong>{person.fullName}</strong>
+                  <small>
+                    {person.department?.name ??
+                      person.branch?.name ??
+                      "Company-wide"}
+                  </small>
+                </span>
               </label>
             ))}
           </QueryGate>
@@ -288,21 +333,42 @@ function AnnouncementForm({
       )}
       <label>
         <span>Announcement</span>
-        <textarea value={body} maxLength={10000} rows={6} onChange={(event) => setBody(event.target.value)} />
+        <textarea
+          value={body}
+          maxLength={10000}
+          rows={6}
+          onChange={(event) => setBody(event.target.value)}
+        />
       </label>
       <div className="record-actions">
-        <Button disabled={title.trim().length < 3 || !body.trim() || !validAudience || save.isPending}>
-          {save.isPending ? "Saving…" : announcement ? "Save changes" : "Publish"}
+        <Button
+          disabled={
+            title.trim().length < 3 ||
+            !body.trim() ||
+            !validAudience ||
+            save.isPending
+          }
+        >
+          {save.isPending
+            ? "Saving…"
+            : announcement
+              ? "Save changes"
+              : "Publish"}
         </Button>
-        <Button type="button" variant="quiet" onClick={onCancel}>Cancel</Button>
+        <Button type="button" variant="quiet" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </form>
   );
 }
 
 function audienceName(announcement: Announcement) {
-  if (announcement.target === "BRANCH") return announcement.branch?.name ?? "Branch";
-  if (announcement.target === "DEPARTMENT") return announcement.department?.name ?? "Department";
-  if (announcement.target === "USERS") return `${announcement._count.recipients} selected`;
+  if (announcement.target === "BRANCH")
+    return announcement.branch?.name ?? "Branch";
+  if (announcement.target === "DEPARTMENT")
+    return announcement.department?.name ?? "Department";
+  if (announcement.target === "USERS")
+    return `${announcement._count.recipients} selected`;
   return "Company-wide";
 }

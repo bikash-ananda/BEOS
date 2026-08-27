@@ -1,123 +1,84 @@
-"use client";
-
-import { useState, type ReactNode } from "react";
-
-type IconName = "dashboard" | "calendar" | "message" | "tasks" | "users" | "quote" | "folder" | "tool" | "boxes" | "cube" | "invoice" | "card" | "team" | "sparkles" | "settings" | "search" | "bell" | "menu" | "close" | "chevron" | "plus" | "arrow" | "clock" | "more" | "building" | "thumb" | "comment" | "trend" | "checkCircle";
-
-const nav: { label: string; icon: IconName }[] = [
-  { label: "Dashboard", icon: "dashboard" }, { label: "Meetings", icon: "calendar" },
-  { label: "Discussion", icon: "message" }, { label: "Tasks", icon: "tasks" },
-  { label: "Customers", icon: "users" }, { label: "Quotations", icon: "quote" },
-  { label: "Projects", icon: "folder" }, { label: "Services", icon: "tool" },
-  { label: "Inventory", icon: "boxes" }, { label: "Assets", icon: "cube" },
-  { label: "Invoices", icon: "invoice" }, { label: "Payments", icon: "card" },
-  { label: "Employees", icon: "team" }, { label: "AI Assistant", icon: "sparkles" },
-];
-
-const stats: { label: string; value: string; detail: string; icon: IconName; theme: string }[] = [
-  { label: "Active Projects", value: "12", detail: "2 starting this week", icon: "folder", theme: "bg-blue-50 text-blue-700" },
-  { label: "Pending Quotations", value: "08", detail: "NPR 4.8M under review", icon: "quote", theme: "bg-amber-50 text-amber-700" },
-  { label: "Open Service Requests", value: "17", detail: "4 require attention", icon: "tool", theme: "bg-violet-50 text-violet-700" },
-  { label: "Outstanding Payments", value: "NPR 2.4M", detail: "5 invoices due this month", icon: "card", theme: "bg-emerald-50 text-emerald-700" },
-];
-
-const projects = [
-  { name: "Smart Farming Automation", client: "Gandaki AgriTech", progress: 78, status: "On track" },
-  { name: "Pokhara Water Monitoring", client: "Pokhara Metropolitan", progress: 56, status: "On track" },
-  { name: "Industrial Power Upgrade", client: "Himalayan Foods", progress: 34, status: "Review needed" },
-];
-
-const activities: { title: string; detail: string; time: string; icon: IconName; theme: string }[] = [
-  { title: "Quotation BE-2026-041 sent to Kalika Municipality", detail: "Electrical automation system · NPR 875,000", time: "18 min ago", icon: "quote", theme: "bg-amber-50 text-amber-700" },
-  { title: "Field team completed the site survey at Lekhnath", detail: "Water level monitoring project · Project update", time: "1 hour ago", icon: "checkCircle", theme: "bg-emerald-50 text-emerald-700" },
-  { title: "New service request assigned to Electronics team", detail: "CCTV diagnostics · Bagar branch", time: "2 hours ago", icon: "tool", theme: "bg-violet-50 text-violet-700" },
-  { title: "Payment received from Gandaki Technical College", detail: "Invoice INV-2026-087 · NPR 156,500", time: "Yesterday", icon: "card", theme: "bg-sky-50 text-sky-700" },
-];
-
-const meetings = [
-  { title: "Weekly engineering review", date: "Today, 23 Aug", time: "02:30 PM – 03:15 PM", department: "Engineering", people: ["SK", "RP", "AG", "+3"], status: "Confirmed" },
-  { title: "Pokhara water-monitoring kickoff", date: "Today, 23 Aug", time: "04:00 PM – 05:00 PM", department: "Projects", people: ["BK", "NS", "DK"], status: "Confirmed" },
-  { title: "Client proposal alignment", date: "Mon, 24 Aug", time: "10:00 AM – 10:45 AM", department: "Business Development", people: ["PM", "SS", "+2"], status: "Scheduled" },
-];
-
-const discussions = [
-  { name: "Anjali Gurung", initials: "AG", department: "Engineering Department", time: "45 min ago", message: "The revised control-panel layout for the Hemja installation is ready for review. We have accommodated the client’s meter-access request and updated the cable routing notes.", reactions: 8, comments: 3, theme: "bg-indigo-100 text-indigo-700" },
-  { name: "Nabin Shrestha", initials: "NS", department: "Projects Department", time: "3 hours ago", message: "Great progress from the field team today. The baseline measurements for the water-monitoring project are now documented in the project workspace.", reactions: 14, comments: 6, theme: "bg-teal-100 text-teal-700" },
-];
-
-function Icon({ name, className = "" }: { name: IconName; className?: string }) {
-  const base = { className: `h-5 w-5 ${className}`, fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, viewBox: "0 0 24 24", "aria-hidden": true };
-  let path: ReactNode;
-  switch (name) {
-    case "dashboard": path = <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>; break;
-    case "calendar": path = <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></>; break;
-    case "message": path = <><path d="M20 15a4 4 0 0 1-4 4H8l-4 3v-7a4 4 0 0 1-2-3.5v-5A4 4 0 0 1 6 3h10a4 4 0 0 1 4 4z" /><path d="M8 10h.01M12 10h.01M16 10h.01" /></>; break;
-    case "tasks": path = <><path d="m5 12 4 4L19 6" /><path d="M21 12a9 9 0 1 1-5.2-8.2" /></>; break;
-    case "users": path = <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></>; break;
-    case "quote": path = <><path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" /><path d="M14 3v7h7M14 3l7 7M7 14h10M7 18h7" /></>; break;
-    case "folder": path = <path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />; break;
-    case "tool": path = <><path d="m14.7 6.3 3-3a4 4 0 0 1-5.3 5.3l-7.8 7.8a2 2 0 1 1-2.8-2.8l7.8-7.8a4 4 0 0 1 5.1-5.1l-3 3z" /><path d="m16 16 3 3M14 18l3 3" /></>; break;
-    case "boxes": path = <><path d="m12 2 8 4.5v9L12 20l-8-4.5v-9z" /><path d="m4 6.5 8 4.5 8-4.5M12 11v9" /></>; break;
-    case "cube": path = <><path d="m12 2 9 5v10l-9 5-9-5V7z" /><path d="m3 7 9 5 9-5M12 12v10" /></>; break;
-    case "invoice": path = <><path d="M5 3h14v18H5z" /><path d="M8 7h8M8 11h8M8 15h5" /></>; break;
-    case "card": path = <><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20M6 15h3" /></>; break;
-    case "team": path = <><circle cx="9" cy="7" r="3" /><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 3.3a3 3 0 0 1 0 5.4M21 21v-2a6 6 0 0 0-3.5-5.5" /></>; break;
-    case "sparkles": path = <><path d="m12 3-1.6 5.4L5 10l5.4 1.6L12 17l1.6-5.4L19 10l-5.4-1.6z" /><path d="m19 16-.6 2.4L16 19l2.4.6L19 22l.6-2.4L22 19l-2.4-.6z" /></>; break;
-    case "settings": path = <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.1 2.1-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-3v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2.1-2.1.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1h-.1v-3h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 2.1-2.1.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.1h3v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2.1 2.1-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v3h-.1a1.7 1.7 0 0 0-1.5 1Z" /></>; break;
-    case "search": path = <><circle cx="11" cy="11" r="6" /><path d="m20 20-4.2-4.2" /></>; break;
-    case "bell": path = <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></>; break;
-    case "menu": path = <path d="M4 6h16M4 12h16M4 18h16" />; break;
-    case "close": path = <path d="m6 6 12 12M18 6 6 18" />; break;
-    case "chevron": path = <path d="m9 18 6-6-6-6" />; break;
-    case "plus": path = <path d="M12 5v14M5 12h14" />; break;
-    case "arrow": path = <><path d="M5 12h14M13 6l6 6-6 6" /></>; break;
-    case "clock": path = <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>; break;
-    case "more": path = <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth="3" />; break;
-    case "building": path = <><path d="M3 21h18M5 21V5l7-3v19M19 21V9l-7-4M8 8h1M8 12h1M8 16h1M14 12h1M14 16h1" /></>; break;
-    case "thumb": path = <><path d="M7 10v10H4V10zM7 20h9.3a2 2 0 0 0 1.9-1.5l1.2-4.5A2 2 0 0 0 17.5 11H14l.5-3a3 3 0 0 0-3-3l-4.5 5z" /></>; break;
-    case "comment": path = <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-4-.9L3 21l1.8-4.2A8 8 0 0 1 3 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 9 8.4Z" />; break;
-    case "trend": path = <><path d="m4 16 5-5 4 4 7-8" /><path d="M15 7h5v5" /></>; break;
-    case "checkCircle": path = <><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></>; break;
-  }
-  return <svg {...base}>{path}</svg>;
-}
-
-function Avatar({ initials, theme, small = false }: { initials: string; theme: string; small?: boolean }) {
-  return <span className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold ${small ? "h-7 w-7 text-[9px]" : "h-10 w-10 text-xs"} ${theme}`}>{initials}</span>;
-}
+import AppShell from "@/components/layout/AppShell";
 
 export default function Home() {
-  const [active, setActive] = useState("Dashboard");
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
-  const [language, setLanguage] = useState("English");
-  const [branchOpen, setBranchOpen] = useState(false);
-  const [branch, setBranch] = useState("Pokhara HQ");
-  const [action, setAction] = useState<string | null>(null);
-  const selectNav = (label: string) => { setActive(label); setMobileOpen(false); };
+  return (
+    <AppShell>
+      <div className="p-6 lg:p-8">
+        <div className="mb-8">
+          <p className="text-sm font-medium text-[#1b579b]">
+            Bikash Engineering Pvt. Ltd. · Pokhara, Nepal
+          </p>
 
-  return <main className="min-h-screen bg-[#f6f8fb] text-slate-900">
-    {mobileOpen && <button className="fixed inset-0 z-30 bg-slate-950/40 lg:hidden" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />}
-    <aside className={`fixed inset-y-0 left-0 z-40 flex w-[272px] flex-col border-r border-slate-200 bg-white shadow-xl shadow-slate-900/5 transition-transform duration-200 lg:translate-x-0 lg:shadow-none ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="flex h-[78px] items-center justify-between border-b border-slate-100 px-5"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#153d70] text-sm font-extrabold tracking-tight text-white shadow-sm">BE</div><div><p className="text-base font-bold tracking-tight text-slate-950">BEOS</p><p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-slate-400">Bikash Engineering</p></div></div><button className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><Icon name="close" /></button></div>
-      <nav className="flex-1 overflow-y-auto px-3 py-5" aria-label="Main navigation"><p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Workspace</p><div className="space-y-1">{nav.map((item) => <button key={item.label} onClick={() => selectNav(item.label)} className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors ${active === item.label ? "bg-[#eaf1fb] text-[#153d70]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><Icon name={item.icon} className={active === item.label ? "text-[#2264ad]" : "text-slate-400 group-hover:text-slate-600"} /><span>{item.label}</span>{item.label === "Tasks" && <span className="ml-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">8</span>}</button>)}</div><div className="my-5 border-t border-slate-100" /><button onClick={() => selectNav("Settings")} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors ${active === "Settings" ? "bg-[#eaf1fb] text-[#153d70]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><Icon name="settings" className="text-slate-400" />Settings</button></nav>
-      <div className="m-3 rounded-2xl bg-[#153d70] p-4 text-white"><div className="mb-3 flex items-center gap-2 text-blue-100"><Icon name="sparkles" className="h-4 w-4" /><span className="text-xs font-semibold">BEOS AI Assistant</span></div><p className="text-sm leading-5 text-white/90">Need a quick project or operations update?</p><button onClick={() => setAction("AI Assistant")} className="mt-3 w-full rounded-lg bg-white px-3 py-2 text-xs font-bold text-[#153d70] transition hover:bg-blue-50">Ask BEOS AI</button></div><div className="border-t border-slate-100 px-4 py-3 text-[11px] text-slate-400">BEOS v0.1.0 · Pokhara, Nepal</div>
-    </aside>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+            BEOS Dashboard
+          </h1>
 
-    <section className="min-h-screen lg:pl-[272px]">
-      <header className="sticky top-0 z-20 flex h-[78px] items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur md:px-7"><button className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Icon name="menu" /></button><label className="hidden max-w-md flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-slate-500 transition focus-within:border-blue-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 md:flex"><Icon name="search" className="h-[18px] w-[18px]" /><input className="h-10 w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" placeholder="Search projects, people, tasks..." aria-label="Search BEOS" /><kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-400">Ctrl K</kbd></label><button className="ml-auto rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden" aria-label="Search"><Icon name="search" /></button>
-        <div className="relative hidden sm:block"><button onClick={() => { setBranchOpen(!branchOpen); setLanguageOpen(false); }} className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" aria-expanded={branchOpen}><Icon name="building" className="h-4 w-4 text-slate-400" /><span>{branch}</span><Icon name="chevron" className="h-3.5 w-3.5 text-slate-400" /></button>{branchOpen && <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg"><button onClick={() => { setBranch("Pokhara HQ"); setBranchOpen(false); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50">Pokhara HQ</button><button onClick={() => { setBranch("Kathmandu Office"); setBranchOpen(false); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50">Kathmandu Office</button></div>}</div>
-        <div className="relative"><button onClick={() => { setLanguageOpen(!languageOpen); setBranchOpen(false); }} className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" aria-expanded={languageOpen}><span className="text-base">◎</span><span className="hidden md:inline">{language}</span><Icon name="chevron" className="h-3.5 w-3.5 text-slate-400" /></button>{languageOpen && <div className="absolute right-0 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg"><button onClick={() => { setLanguage("English"); setLanguageOpen(false); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50">English</button><button onClick={() => { setLanguage("नेपाली"); setLanguageOpen(false); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50">नेपाली</button></div>}</div><button className="relative rounded-lg p-2.5 text-slate-600 hover:bg-slate-50" aria-label="Notifications"><Icon name="bell" className="h-[19px] w-[19px]" /><span className="absolute right-2 top-2 h-2 w-2 rounded-full border border-white bg-rose-500" /></button><button className="flex items-center gap-2 rounded-xl border-l border-slate-100 py-1 pl-3 text-left" aria-label="Open user profile"><Avatar initials="BP" theme="bg-blue-100 text-blue-700" /><span className="hidden pr-1 md:block"><span className="block text-xs font-bold text-slate-800">Bikash Pokharel</span><span className="block text-[11px] text-slate-500">Administrator</span></span><Icon name="chevron" className="hidden h-3.5 w-3.5 text-slate-400 md:block" /></button></header>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            Bikash Engineering Operating System — your central platform for
+            company operations, projects, finance, people, AI and IoT.
+          </p>
+        </div>
 
-      <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-7 md:py-8"><div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><p className="mb-2 text-sm font-medium text-slate-500">Sunday, 23 August 2026</p><h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Good morning, Bikash</h1><p className="mt-2 text-sm text-slate-600">Here’s what’s happening across Bikash Engineering today.</p></div><button onClick={() => setAction("New Project")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#153d70] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#10345f]"><Icon name="plus" className="h-4 w-4" />New project</button></div>
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Business overview">{stats.map((card) => <article key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-start justify-between"><div className={`grid h-10 w-10 place-items-center rounded-xl ${card.theme}`}><Icon name={card.icon} className="h-[19px] w-[19px]" /></div><Icon name="more" className="h-5 w-5 text-slate-300" /></div><p className="mt-5 text-2xl font-bold tracking-tight text-slate-900">{card.value}</p><p className="mt-1 text-sm font-semibold text-slate-700">{card.label}</p><p className="mt-2 text-xs text-slate-500">{card.detail}</p></article>)}</section>
-        <section className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_.75fr]"><article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">Project overview</h2><p className="mt-0.5 text-xs text-slate-500">Delivery progress for active engagements</p></div><button className="inline-flex items-center gap-1 text-xs font-bold text-[#1b579b] hover:text-[#153d70]">View all <Icon name="arrow" className="h-3.5 w-3.5" /></button></div><div className="divide-y divide-slate-100">{projects.map((project) => <div key={project.name} className="px-5 py-4"><div className="flex items-start justify-between gap-4"><div><h3 className="text-sm font-bold text-slate-800">{project.name}</h3><p className="mt-1 text-xs text-slate-500">{project.client}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${project.status === "On track" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{project.status}</span></div><div className="mt-3 flex items-center gap-3"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${project.status === "On track" ? "bg-[#2871bd]" : "bg-amber-500"}`} style={{ width: `${project.progress}%` }} /></div><span className="w-8 text-right text-xs font-bold text-slate-500">{project.progress}%</span></div></div>)}</div></article>
-          <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">Upcoming meetings</h2><p className="mt-0.5 text-xs text-slate-500">Next scheduled sessions</p></div><button onClick={() => setAction("New Meeting")} className="rounded-lg bg-blue-50 p-2 text-[#1b579b] hover:bg-blue-100" aria-label="Schedule meeting"><Icon name="plus" className="h-4 w-4" /></button></div><div className="divide-y divide-slate-100">{meetings.map((meeting) => <div key={meeting.title} className="px-5 py-4"><div className="flex gap-3"><div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600"><Icon name="calendar" className="h-[17px] w-[17px]" /></div><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><h3 className="text-sm font-bold leading-5 text-slate-800">{meeting.title}</h3><span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${meeting.status === "Confirmed" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{meeting.status}</span></div><p className="mt-1 flex items-center gap-1 text-xs text-slate-500"><Icon name="clock" className="h-3.5 w-3.5" />{meeting.date} · {meeting.time}</p><p className="mt-1.5 text-[11px] font-medium text-slate-400">{meeting.department}</p><div className="mt-2 flex items-center -space-x-1.5">{meeting.people.map((person, index) => <span key={`${meeting.title}-${person}`} className={`grid h-5 w-5 place-items-center rounded-full border-2 border-white text-[7px] font-bold ${index === 3 ? "bg-slate-200 text-slate-500" : "bg-blue-100 text-blue-700"}`}>{person}</span>)}</div></div></div></div>)}</div></article></section>
-        <section className="mt-6 grid gap-6 xl:grid-cols-[.83fr_1.17fr]"><article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">Recent activity</h2><p className="mt-0.5 text-xs text-slate-500">Updates across the organization</p></div><button className="text-xs font-bold text-[#1b579b] hover:text-[#153d70]">See activity</button></div><div className="divide-y divide-slate-100">{activities.map((activity) => <div key={activity.title} className="flex gap-3 px-5 py-4"><div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${activity.theme}`}><Icon name={activity.icon} className="h-[17px] w-[17px]" /></div><div className="min-w-0"><p className="text-sm font-semibold leading-5 text-slate-800">{activity.title}</p><p className="mt-1 text-xs text-slate-500">{activity.detail}</p><p className="mt-1.5 text-[11px] text-slate-400">{activity.time}</p></div></div>)}</div></article>
-          <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">Company discussion</h2><p className="mt-0.5 text-xs text-slate-500">Latest updates from your teams</p></div><button onClick={() => setAction("New Discussion")} className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-[#1b579b] hover:bg-blue-100">Start discussion</button></div><div className="divide-y divide-slate-100">{discussions.map((discussion) => <div key={discussion.name} className="px-5 py-5"><div className="flex gap-3"><Avatar initials={discussion.initials} theme={discussion.theme} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-baseline gap-x-2"><h3 className="text-sm font-bold text-slate-800">{discussion.name}</h3><span className="text-xs text-slate-500">{discussion.department}</span></div><p className="mt-0.5 text-[11px] text-slate-400">{discussion.time}</p><p className="mt-3 text-sm leading-6 text-slate-600">{discussion.message}</p><div className="mt-4 flex gap-5"><button className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#1b579b]"><Icon name="thumb" className="h-4 w-4" />{discussion.reactions}</button><button className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#1b579b]"><Icon name="comment" className="h-4 w-4" />{discussion.comments} comments</button></div></div></div></div>)}</div></article></section>
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="mb-4 flex items-center justify-between"><div><h2 className="font-bold text-slate-900">Quick actions</h2><p className="mt-0.5 text-xs text-slate-500">Create a new workspace item</p></div><Icon name="trend" className="text-slate-300" /></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{[["New Meeting", "calendar", "bg-blue-50 text-blue-700 hover:bg-blue-100"], ["New Discussion", "message", "bg-violet-50 text-violet-700 hover:bg-violet-100"], ["New Quotation", "quote", "bg-amber-50 text-amber-700 hover:bg-amber-100"], ["New Project", "folder", "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"], ["Service Request", "tool", "bg-rose-50 text-rose-700 hover:bg-rose-100"]].map(([label, icon, theme]) => <button key={label} onClick={() => setAction(label)} className={`flex items-center gap-3 rounded-xl p-3 text-left transition ${theme}`}><span className="grid h-8 w-8 place-items-center rounded-lg bg-white/70"><Icon name={icon as IconName} className="h-[17px] w-[17px]" /></span><span className="text-sm font-bold">{label}</span></button>)}</div></section><footer className="flex flex-col gap-2 py-7 text-xs text-slate-400 sm:flex-row sm:justify-between"><span>© 2026 Bikash Engineering Pvt. Ltd. · Pokhara, Nepal</span><span>BEOS dashboard · Demo workspace</span></footer>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard title="Projects" value="24" />
+          <DashboardCard title="Customers" value="186" />
+          <DashboardCard title="Open Orders" value="32" />
+          <DashboardCard title="Employees" value="50+" />
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+            <h2 className="font-bold text-slate-900">
+              Welcome to BEOS
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Select a module from the navigation to begin managing Bikash
+              Engineering operations.
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="font-bold text-slate-900">
+              System Status
+            </h2>
+
+            <div className="mt-5 space-y-4">
+              <Status name="Web Application" />
+              <Status name="API Server" />
+              <Status name="PostgreSQL" />
+            </div>
+          </section>
+        </div>
       </div>
-    </section>
-    {action && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-[#1b579b]"><Icon name="plus" /></div><button onClick={() => setAction(null)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Close modal"><Icon name="close" /></button></div><h2 id="demo-modal-title" className="mt-4 text-lg font-bold text-slate-900">{action}</h2><p className="mt-2 text-sm leading-6 text-slate-600">This is a UI-only dashboard preview. The {action.toLowerCase()} workflow will be connected in a future BEOS phase.</p><div className="mt-6 flex justify-end gap-3"><button onClick={() => setAction(null)} className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100">Close</button><button onClick={() => setAction(null)} className="rounded-lg bg-[#153d70] px-4 py-2 text-sm font-bold text-white hover:bg-[#10345f]">Got it</button></div></div></div>}
-  </main>;
+    </AppShell>
+  );
+}
+
+function DashboardCard({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="mt-3 text-3xl font-bold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function Status({ name }: { name: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-slate-600">{name}</span>
+
+      <span className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        Online
+      </span>
+    </div>
+  );
 }

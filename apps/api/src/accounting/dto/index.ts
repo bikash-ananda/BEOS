@@ -1,9 +1,9 @@
 export class CreateAccountDto {
   code: string;
   name: string;
-  description?: string;
-  type: 'Asset' | 'Liability' | 'Equity' | 'Revenue' | 'Expense';
+  type: string;
   branchId: string;
+  description?: string;
 }
 
 export class CreateInvoiceDto {
@@ -16,6 +16,7 @@ export class CreateInvoiceDto {
   accountId: string;
   branchId: string;
   createdBy?: string;
+  status?: string;
 }
 
 export class CreatePaymentDto {
@@ -34,4 +35,5 @@ export class CreateExpenseDto {
   category: string;
   claimedBy: string;
   branchId: string;
+  status?: string;
 }

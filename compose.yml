@@ -1,3 +1,7 @@
+# Preserve the existing Compose identity and PostgreSQL volume after moving this
+# file from infra/ to the repository root.
+name: infra
+
 services:
   postgres:
     image: postgres:16

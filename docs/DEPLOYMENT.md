@@ -62,11 +62,12 @@ traffic to share one identity.
 2. Load the production API configuration and run non-mutating checks:
 
    ```sh
-   pnpm contract:check
-   pnpm db:validate
-   pnpm lint
-   pnpm test
-   pnpm test:web
+   node scripts/check-contract.mjs
+   pnpm --filter api exec prisma validate
+   pnpm --filter api lint
+   pnpm --filter web lint
+   pnpm --filter api test --runInBand
+   pnpm --filter web test
    pnpm build
    ```
 
@@ -81,9 +82,8 @@ traffic to share one identity.
 
    Production uses `migrate deploy`, never `migrate dev` or `db push`.
 
-5. Start the API with `pnpm --filter api start:prod` and the web process with
-   `pnpm --filter web start`. A process supervisor must restart failed processes
-   and retain structured stdout/stderr logs.
+5. Start both built services with `pnpm start`. A process supervisor must
+   restart failed processes and retain structured stdout/stderr logs.
 6. Before restoring write traffic, confirm:
 
    - `/api/v1/health` returns success;
@@ -102,11 +102,11 @@ Run the idempotent permission seed, then create the first administrator exactly
 once:
 
 ```sh
-pnpm rbac:seed
+pnpm --filter api rbac:seed
 BOOTSTRAP_ADMIN_EMAIL="admin@example.com" \
 BOOTSTRAP_ADMIN_NAME="Administrator" \
 BOOTSTRAP_ADMIN_PASSWORD="use-a-temporary-secret-channel" \
-pnpm bootstrap:admin
+pnpm --filter api bootstrap:admin
 ```
 
 The bootstrap command refuses to overwrite an existing account. Remove the

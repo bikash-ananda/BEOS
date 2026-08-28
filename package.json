@@ -3,24 +3,9 @@
   "private": true,
   "description": "BEOS — Bikash Engineering Operating System",
   "scripts": {
-    "dev:api": "pnpm --filter api start:dev",
-    "dev:web": "pnpm --filter web dev",
+    "dev": "pnpm --parallel --filter api --filter web run dev",
     "build": "pnpm --filter api build && pnpm --filter web build",
-    "format:check": "pnpm --filter api format:check",
-    "lint": "pnpm --filter api lint && pnpm --filter web lint",
-    "test": "pnpm --filter api test --runInBand",
-    "test:e2e": "pnpm --filter api test:e2e --runInBand",
-    "test:web": "pnpm --filter web test",
-    "test:browser": "pnpm --filter web test:browser",
-    "db:validate": "pnpm --filter api exec prisma validate",
-    "verify": "pnpm format:check && pnpm lint && pnpm test && pnpm test:web && pnpm contract:check && pnpm test:e2e && pnpm db:validate && pnpm build",
-    "db:up": "docker compose -f infra/docker-compose.yml up -d",
-    "db:down": "docker compose -f infra/docker-compose.yml down",
-    "db:migrate": "pnpm --filter api exec prisma migrate dev",
-    "bootstrap:admin": "pnpm --filter api bootstrap:admin",
-    "rbac:seed": "pnpm --filter api rbac:seed",
-    "contract:generate": "pnpm --filter api openapi:export && pnpm --filter web api:types",
-    "contract:check": "node scripts/check-contract.mjs"
+    "start": "pnpm --parallel --filter api --filter web run start"
   },
   "engines": {
     "node": ">=22"

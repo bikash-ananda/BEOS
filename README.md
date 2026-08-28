@@ -22,22 +22,21 @@ Install dependencies and create the API and web environment files:
 
 ```sh
 pnpm install
-cp .env.example apps/api/.env
+cp .env.example .env
 cp apps/web/.env.example apps/web/.env.local
 ```
 
 Start PostgreSQL and apply existing migrations:
 
 ```sh
-pnpm db:up
-pnpm db:migrate
+docker compose up -d
+pnpm --filter api exec prisma migrate dev
 ```
 
-Run the API and web application in separate terminals:
+Run the API and web application together:
 
 ```sh
-pnpm dev:api
-pnpm dev:web
+pnpm dev
 ```
 
 Local endpoints:
@@ -57,25 +56,12 @@ split-origin deployments. A same-origin production proxy can leave it empty,
 but must forward WebSocket upgrades for `/api/v1/socket.io`. Change these
 values to match the deployed web and API origins.
 
-## Verification
-
-After the environment file and database are available, run:
-
-```sh
-pnpm verify
-```
-
-This checks formatting, lint, API and web component tests, the generated API
-contract, the Prisma schema, and both production builds. Database end-to-end
-tests modify the dedicated test database; browser tests additionally require
-the pinned Playwright Firefox build.
-
 ## First administrator
 
 Seed the managed system roles and permissions at any time with:
 
 ```sh
-pnpm rbac:seed
+pnpm --filter api rbac:seed
 ```
 
 Create the first administrator once by supplying credentials through temporary
@@ -85,7 +71,7 @@ environment variables:
 BOOTSTRAP_ADMIN_EMAIL="admin@example.com" \
 BOOTSTRAP_ADMIN_NAME="Administrator" \
 BOOTSTRAP_ADMIN_PASSWORD="replace-with-a-strong-password" \
-pnpm bootstrap:admin
+pnpm --filter api bootstrap:admin
 ```
 
 The bootstrap command refuses to overwrite an existing account. Do not place

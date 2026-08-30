@@ -46,19 +46,19 @@ code and verification pass.
 - [x] Implement invite acceptance, login, refresh rotation, logout, logout-all,
   current-user, password change, and administrator password reset.
 - [x] Add backend permission guards and audit identity/security events.
-- [ ] Add protected web routes and real session-aware navigation.
-- [ ] Add administrator workflows for users, roles, permissions, branches, and
+- [x] Add protected web routes and real session-aware navigation.
+- [x] Add administrator workflows for users, roles, permissions, branches, and
   departments.
 - [x] Verify invitation expiry, refresh replay rejection, session revocation,
   disabled accounts, and 401/403 boundaries.
 
 ## Iteration 3 — Dynamic workspace shell
 
-- [ ] Break the demo page into a maintainable application shell and UI
+- [x] Break the demo page into a maintainable application shell and UI
   components.
-- [ ] Replace all fake profile, branch, dashboard, meeting, activity, and
+- [x] Replace all fake profile, branch, dashboard, meeting, activity, and
   discussion data with authenticated API data.
-- [ ] Display only implemented modules allowed by the current user's
+- [x] Display only implemented modules allowed by the current user's
   permissions.
 - [ ] Add loading, empty, error, and permission-denied states.
 - [ ] Verify responsive and keyboard-accessible behavior.
@@ -121,3 +121,21 @@ code and verification pass.
 - Prefer established libraries when they materially reduce custom code. Record
   every new dependency and its purpose in the iteration report.
 - Do not check off work while required verification is failing.
+
+## Iteration 2 implementation notes
+
+- Administrative identity APIs are split by users, roles, and organization;
+  system roles remain source-managed while editable company roles are stored in
+  PostgreSQL.
+- The web app proxies API traffic through `BACKEND_URL`, protects workspace
+  routes with the current authenticated session, and retries an expired access
+  token once through refresh rotation.
+- Administrator-generated invitation and password-reset links are copied for
+  manual delivery. Secret token hashes are never returned by list endpoints.
+- Added established web libraries instead of custom equivalents:
+  `@tanstack/react-query` for server state, `react-hook-form`, `zod`, and
+  `@hookform/resolvers` for validated forms, `lucide-react` for icons, and
+  `sonner` for mutation feedback.
+- The previous static dashboard and handwritten SVG switch were removed. UI,
+  auth, workspace, and administration responsibilities now live in separate
+  components and stylesheets.

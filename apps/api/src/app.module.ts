@@ -2,6 +2,7 @@ import { Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
+import { AdministrationModule } from './administration/administration.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditModule } from './audit/audit.module';
@@ -37,6 +38,7 @@ import { RbacModule } from './rbac/rbac.module';
     AuditModule,
     RbacModule,
     AuthModule,
+    AdministrationModule,
   ],
 
   controllers: [AppController],

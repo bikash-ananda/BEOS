@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: beos
       POSTGRES_DB: beos
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - beos_pgdata:/var/lib/postgresql/data
     healthcheck:

@@ -1,0 +1,16 @@
+.git
+.gitignore
+.dockerignore
+**/node_modules
+apps/*/node_modules
+apps/*/dist
+apps/*/.next
+apps/*/coverage
+apps/*/test-results
+apps/api/uploads
+uploads
+.env
+.env.local
+apps/*/.env*
+*.log
+.DS_Store

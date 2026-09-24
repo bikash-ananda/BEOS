@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import * as argon2 from 'argon2';
+import argon2 from 'argon2-browser';
 import { PrismaService } from '../prisma/prisma.service';
 import { SYSTEM_PERMISSIONS, SYSTEM_ROLES } from './permissions';
 

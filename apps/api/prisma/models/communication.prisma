@@ -1,0 +1,167 @@
+enum ReactionKind {
+  ACKNOWLEDGE
+  SUPPORT
+  CELEBRATE
+}
+
+model Discussion {
+  id        String               @id @default(cuid())
+  title     String
+  body      String
+  authorId  String
+  author    User                 @relation(fields: [authorId], references: [id])
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  comments  DiscussionComment[]
+  reactions DiscussionReaction[]
+
+  @@index([deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model DiscussionComment {
+  id           String                      @id @default(cuid())
+  discussionId String
+  discussion   Discussion                  @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User                        @relation(fields: [authorId], references: [id])
+  body         String
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  reactions    DiscussionCommentReaction[]
+
+  @@index([discussionId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model DiscussionReaction {
+  discussionId String
+  discussion   Discussion   @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind         ReactionKind
+  createdAt    DateTime     @default(now())
+
+  @@id([discussionId, userId])
+  @@index([discussionId, kind])
+}
+
+model DiscussionCommentReaction {
+  commentId String
+  comment   DiscussionComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      ReactionKind
+  createdAt DateTime          @default(now())
+
+  @@id([commentId, userId])
+  @@index([commentId, kind])
+}
+
+enum ConversationType {
+  COMPANY
+  DEPARTMENT
+  PRIVATE_GROUP
+  DIRECT
+}
+
+model Conversation {
+  id           String                    @id @default(cuid())
+  type         ConversationType
+  name         String?
+  departmentId String?
+  department   Department?               @relation(fields: [departmentId], references: [id])
+  createdById  String
+  createdBy    User                      @relation("ConversationCreator", fields: [createdById], references: [id])
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  members      ConversationMember[]
+  messages     ConversationMessage[]
+  receipts     ConversationReadReceipt[]
+
+  @@index([type, updatedAt])
+  @@index([departmentId, updatedAt])
+  @@index([createdById])
+}
+
+model ConversationMember {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+
+  @@id([conversationId, userId])
+  @@index([userId, joinedAt])
+}
+
+model ConversationMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id])
+  body           String
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([conversationId, deletedAt, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model ConversationReadReceipt {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt         DateTime     @default(now())
+
+  @@id([conversationId, userId])
+  @@index([userId, readAt])
+}
+
+enum AnnouncementTarget {
+  COMPANY
+  BRANCH
+  DEPARTMENT
+  USERS
+}
+
+model Announcement {
+  id           String                  @id @default(cuid())
+  title        String
+  body         String
+  target       AnnouncementTarget
+  branchId     String?
+  branch       Branch?                 @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?             @relation(fields: [departmentId], references: [id])
+  authorId     String
+  author       User                    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  recipients   AnnouncementRecipient[]
+
+  @@index([deletedAt, createdAt])
+  @@index([branchId, createdAt])
+  @@index([departmentId, createdAt])
+}
+
+model AnnouncementRecipient {
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt         DateTime?
+
+  @@id([announcementId, userId])
+  @@index([userId, readAt])
+}

@@ -1,0 +1,244 @@
+.work-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.work-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  align-items: center;
+  gap: 0.75rem;
+}
+.work-heading-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.work-heading-actions svg {
+  width: 1rem;
+}
+.work-date-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-top: 2rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+}
+.work-date-strip button {
+  display: grid;
+  min-height: 3.6rem;
+  gap: 0.2rem;
+  place-content: center;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.work-date-strip button:last-child {
+  border-right: 0;
+}
+.work-date-strip button.active {
+  box-shadow: inset 0 -2px var(--signal);
+  color: var(--signal-dark);
+}
+.work-date-strip span {
+  font-family: var(--font-geist-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.work-date-strip strong {
+  font-size: 0.8rem;
+}
+.work-search {
+  display: flex;
+  height: 2.8rem;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+  padding: 0 0.75rem;
+}
+.work-search svg {
+  width: 1rem;
+  color: var(--ink-soft);
+}
+.work-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.twin-registers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 1rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+}
+.work-register:first-child {
+  border-right: 1px solid var(--line-dark);
+}
+.work-register > header {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line-dark);
+}
+.work-register h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.work-register header span {
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+.work-register > div > button {
+  display: grid;
+  width: 100%;
+  grid-template-columns:
+    minmax(7.5rem, 0.7fr) minmax(10rem, 1.2fr) minmax(9rem, 1fr)
+    auto;
+  gap: 0.7rem;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 0.85rem 1rem;
+  color: var(--ink);
+  text-align: left;
+}
+.work-register > div > button:hover {
+  background: color-mix(in srgb, var(--navy) 5%, transparent);
+}
+.work-register > div > button.active {
+  box-shadow: inset 2px 0 var(--signal);
+  background: color-mix(in srgb, var(--navy) 7%, transparent);
+}
+.work-register time,
+.work-register small {
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono);
+  font-size: 0.62rem;
+  text-transform: capitalize;
+}
+.work-register strong {
+  font-size: 0.84rem;
+}
+.work-register button > span {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.work-mobile-index {
+  display: none;
+}
+
+@media (max-width: 1250px) {
+  .work-register > div > button {
+    grid-template-columns: 7rem 1fr auto;
+  }
+  .work-register button > span {
+    display: none;
+  }
+  .agenda-row {
+    grid-template-columns: 1fr;
+  }
+  .agenda-row > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .task-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 800px) {
+  .work-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .work-heading-actions {
+    justify-content: start;
+  }
+  .work-date-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .work-date-strip button:nth-child(n + 5) {
+    display: none;
+  }
+  .work-mobile-index {
+    display: flex;
+    margin-top: 1rem;
+    border: 1px solid var(--line-dark);
+  }
+  .work-mobile-index button {
+    display: inline-flex;
+    flex: 1;
+    min-height: 2.8rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 0;
+    border-right: 1px solid var(--line);
+    background: var(--paper-light);
+    color: var(--ink-soft);
+  }
+  .work-mobile-index button.active {
+    box-shadow: inset 0 -2px var(--signal);
+    color: var(--ink);
+  }
+  .work-mobile-index svg {
+    width: 1rem;
+  }
+  .twin-registers {
+    grid-template-columns: 1fr;
+  }
+  .work-register {
+    display: none;
+  }
+  .work-register.mobile-active {
+    display: block;
+  }
+  .work-register:first-child {
+    border-right: 0;
+  }
+  .work-register > div > button {
+    grid-template-columns: 6.5rem 1fr auto;
+  }
+  .work-form-row,
+  .work-people,
+  .task-fields {
+    grid-template-columns: 1fr;
+  }
+  .work-attachments {
+    grid-template-columns: 1fr;
+  }
+  .attachment-picker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .attachment-picker select {
+    max-width: none;
+    width: 100%;
+  }
+  .work-focus > header {
+    align-items: start;
+    flex-direction: column;
+  }
+  .meeting-command label,
+  .task-record > header label {
+    margin-left: 0;
+  }
+}

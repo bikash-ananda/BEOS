@@ -1,0 +1,86 @@
+model Account {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  type        String // Asset, Liability, Equity, Revenue, Expense
+  balance     Decimal   @default(0)
+  isActive    Boolean   @default(true)
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  entries     GLEntry[]
+  invoices    Invoice[]
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  invoiceNo   String        @unique
+  customerId  String?
+  amount      Decimal
+  amountPaid  Decimal       @default(0)
+  status      String // Draft, Issued, Paid, Overdue, Cancelled
+  issueDate   DateTime
+  dueDate     DateTime
+  description String?
+  accountId   String
+  account     Account       @relation(fields: [accountId], references: [id])
+  branchId    String
+  branch      Branch        @relation(fields: [branchId], references: [id])
+  createdBy   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  payments    Payment[]
+  items       InvoiceItem[]
+}
+
+model InvoiceItem {
+  id        String  @id @default(cuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  itemName  String
+  quantity  Int
+  unitPrice Decimal
+  total     Decimal
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
+  amount        Decimal
+  paymentDate   DateTime
+  paymentMethod String // Cash, Check, Bank, Online
+  referenceNo   String?
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  expenseNo   String   @unique
+  description String
+  amount      Decimal
+  category    String // Travel, Office, Equipment, etc.
+  status      String // Pending, Approved, Rejected, Paid
+  claimedBy   String
+  approvedBy  String?
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GLEntry {
+  id        String   @id @default(cuid())
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+  debit     Decimal  @default(0)
+  credit    Decimal  @default(0)
+  reference String?
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// ===== PHASE 3: PAYROLL =====

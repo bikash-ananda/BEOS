@@ -3,23 +3,12 @@
   "private": true,
   "description": "BEOS — Bikash Engineering Operating System",
   "scripts": {
-    "dev:api": "pnpm --filter api start:dev",
-    "dev:web": "pnpm --filter web dev",
-    "db:up": "docker compose -f infra/docker-compose.yml up -d",
-    "db:down": "docker compose -f infra/docker-compose.yml down",
-    "db:migrate": "pnpm --filter api exec prisma migrate dev"
+    "dev": "pnpm --parallel --filter api --filter web run dev",
+    "build": "pnpm --filter api build && pnpm --filter web build",
+    "start": "pnpm --parallel --filter api --filter web run start"
   },
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "@prisma/engines",
-      "prisma",
-      "sharp",
-      "unrs-resolver"
-    ]
-  }
+  "packageManager": "pnpm@10.34.5"
 }

@@ -1,0 +1,380 @@
+.communication-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.live-coordinate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.live-coordinate::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  background: var(--line-dark);
+  content: "";
+}
+.live-live::before {
+  background: var(--success);
+}
+.live-disconnected::before {
+  background: var(--signal);
+}
+.communication-index {
+  display: flex;
+  margin-top: 2rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+}
+.communication-index button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.55rem;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  padding: 0.7rem 1rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.communication-index button.active {
+  box-shadow: inset 0 -2px var(--signal);
+  color: var(--ink);
+}
+.communication-index svg,
+.communication-register > header .button svg,
+.announcement-register > header .button svg,
+.message-composer .button svg {
+  width: 1rem;
+}
+.communication-workbench {
+  display: grid;
+  grid-template-columns: minmax(18rem, 23rem) minmax(0, 1fr);
+  min-height: 40rem;
+  margin-top: 1rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+}
+.communication-register {
+  min-width: 0;
+  border-right: 1px solid var(--line-dark);
+}
+.communication-register > header,
+.announcement-register > header {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1rem;
+}
+.communication-register > header h2,
+.announcement-register h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.communication-register > header .button,
+.announcement-register > header .button,
+.message-composer .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.communication-search {
+  display: flex;
+  height: 2.8rem;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+  padding: 0 0.75rem;
+}
+.communication-search svg {
+  width: 1rem;
+  flex: none;
+  color: var(--ink-soft);
+}
+.communication-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.record-index {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+.record-index > button {
+  display: grid;
+  gap: 0.3rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 1rem;
+  color: var(--ink);
+  text-align: left;
+}
+.record-index > button:hover,
+.record-index > button.active {
+  background: color-mix(in srgb, var(--navy) 6%, transparent);
+}
+.record-index > button.active {
+  box-shadow: inset 2px 0 var(--signal);
+}
+.record-index strong {
+  font-size: 0.9rem;
+}
+.record-index span,
+.record-index small {
+  color: var(--ink-soft);
+}
+.record-index span {
+  font-size: 0.78rem;
+}
+.record-index small {
+  overflow: hidden;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.communication-focus {
+  min-width: 0;
+}
+.communication-focus > .empty-state {
+  min-height: 38rem;
+}
+.discussion-detail > header,
+.conversation-thread > header {
+  display: flex;
+  min-height: 5rem;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 1.2rem 1.5rem;
+}
+.discussion-detail h2,
+.conversation-thread h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.discussion-detail > header p,
+.conversation-thread > header p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  text-transform: capitalize;
+}
+.record-body {
+  max-width: 72ch;
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--ink);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.discussion-detail > .reaction-controls {
+  margin: 0 1.5rem 1.5rem;
+}
+.reaction-controls {
+  display: flex;
+  gap: 0.35rem;
+}
+.reaction-controls button {
+  display: inline-flex;
+  min-width: 2.4rem;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+}
+.reaction-controls button.active {
+  border-color: var(--signal);
+  color: var(--signal-dark);
+}
+.reaction-controls svg {
+  width: 0.85rem;
+}
+.comment-thread {
+  border-top: 1px solid var(--line-dark);
+}
+.comment-thread > h3 {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9rem;
+}
+.comment-record,
+.message-record {
+  border-bottom: 1px solid var(--line);
+  padding: 1rem 1.5rem;
+}
+.comment-record header,
+.message-record header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.comment-record header small,
+.message-record header small {
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+}
+.comment-record > p,
+.message-record > p {
+  max-width: 72ch;
+  margin: 0.5rem 0;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.comment-record footer,
+.message-record footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.record-actions > button:not(.button) {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--signal-dark);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+.conversation-thread {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: auto 1fr auto;
+}
+.message-ledger {
+  max-height: 34rem;
+  overflow-y: auto;
+}
+.message-composer {
+  align-self: end;
+  border-top: 1px solid var(--line-dark);
+  border-bottom: 0;
+}
+.announcement-register {
+  margin-top: 1rem;
+  border: 1px solid var(--line-dark);
+  background: var(--paper-light);
+}
+.announcement-register > header > div {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+.announcement-register > header span,
+.announcement-list article > header > span {
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.announcement-list article {
+  border-top: 1px solid var(--line);
+}
+.announcement-list article:first-child {
+  border-top: 0;
+}
+.announcement-list article.announcement-unread {
+  box-shadow: inset 2px 0 var(--signal);
+}
+.announcement-list article > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.2rem 1.5rem 0;
+}
+.announcement-list h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.announcement-list header p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+}
+.announcement-list article > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1.5rem 1.2rem;
+}
+@media (max-width: 950px) {
+  .communication-workbench {
+    grid-template-columns: 1fr;
+  }
+  .communication-register {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-dark);
+  }
+  .record-index {
+    max-height: 18rem;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 700px) {
+  .communication-heading,
+  .announcement-list article > header,
+  .announcement-list article > footer,
+  .discussion-detail > header,
+  .comment-record footer {
+    display: grid;
+    align-items: start;
+  }
+  .live-coordinate {
+    justify-self: start;
+  }
+  .communication-index {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .communication-index button {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .communication-index button.active {
+    box-shadow: inset 2px 0 var(--signal);
+  }
+  .communication-register > header,
+  .announcement-register > header {
+    align-items: start;
+  }
+  .comment-record header,
+  .message-record header {
+    display: grid;
+    gap: 0.2rem;
+  }
+}

@@ -1,0 +1,211 @@
+model Branch {
+  id                   String                @id @default(cuid())
+  name                 String
+  code                 String                @unique
+  city                 String?
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  departments          Department[]
+  users                User[]
+  accounts             Account[]
+  invoices             Invoice[]
+  expenses             Expense[]
+  employees            Employee[]
+  devices              Device[]
+  invitations          Invitation[]
+  workspaceAttachments WorkspaceAttachment[]
+  announcements        Announcement[]
+}
+
+model Department {
+  id                   String                @id @default(cuid())
+  name                 String
+  code                 String
+  branchId             String
+  branch               Branch                @relation(fields: [branchId], references: [id])
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  users                User[]
+  employees            Employee[]
+  invitations          Invitation[]
+  workspaceAttachments WorkspaceAttachment[]
+  conversations        Conversation[]
+  announcements        Announcement[]
+
+  @@unique([branchId, code])
+}
+
+model User {
+  id                     String                      @id @default(cuid())
+  email                  String                      @unique
+  passwordHash           String
+  fullName               String
+  isActive               Boolean                     @default(true)
+  branchId               String?
+  branch                 Branch?                     @relation(fields: [branchId], references: [id])
+  departmentId           String?
+  department             Department?                 @relation(fields: [departmentId], references: [id])
+  lastLoginAt            DateTime?
+  passwordChangedAt      DateTime                    @default(now())
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+  roles                  UserRole[]
+  auditLogs              AuditLog[]
+  sessions               AuthSession[]
+  invitationsSent        Invitation[]                @relation("InvitationCreator")
+  passwordResets         PasswordReset[]             @relation("PasswordResetUser")
+  passwordResetsCreated  PasswordReset[]             @relation("PasswordResetCreator")
+  notifications          Notification[]
+  uploadedFiles          FileRecord[]                @relation("FileUploader")
+  discussions            Discussion[]
+  discussionComments     DiscussionComment[]
+  discussionReactions    DiscussionReaction[]
+  commentReactions       DiscussionCommentReaction[]
+  conversationsCreated   Conversation[]              @relation("ConversationCreator")
+  conversationMembers    ConversationMember[]
+  conversationMessages   ConversationMessage[]
+  conversationReceipts   ConversationReadReceipt[]
+  announcementsCreated   Announcement[]              @relation("AnnouncementAuthor")
+  announcementRecipients AnnouncementRecipient[]
+  meetingsOrganized      Meeting[]                   @relation("MeetingOrganizer")
+  meetingParticipants    MeetingParticipant[]
+  meetingAgendaItems     MeetingAgendaItem[]         @relation("AgendaItemCreator")
+  meetingNotes           MeetingNote[]
+  meetingDecisions       MeetingDecision[]
+  tasksCreated           WorkTask[]                  @relation("TaskCreator")
+  taskAssignments        TaskAssignee[]
+  taskComments           TaskComment[]
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  users       UserRole[]
+  permissions RolePermission[]
+  invitations InvitationRole[]
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  roles       RolePermission[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  href      String?
+  dedupeKey String?   @unique
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+model Invitation {
+  id           String           @id @default(cuid())
+  email        String
+  tokenHash    String           @unique
+  branchId     String?
+  branch       Branch?          @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   Department?      @relation(fields: [departmentId], references: [id])
+  invitedById  String
+  invitedBy    User             @relation("InvitationCreator", fields: [invitedById], references: [id])
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime         @default(now())
+  roles        InvitationRole[]
+
+  @@index([email, expiresAt])
+  @@index([invitedById])
+}
+
+model InvitationRole {
+  invitationId String
+  roleId       String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([invitationId, roleId])
+}
+
+model AuthSession {
+  id        String    @id @default(cuid())
+  familyId  String
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([familyId])
+  @@index([userId, revokedAt])
+}
+
+model PasswordReset {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  userId      String
+  user        User      @relation("PasswordResetUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User      @relation("PasswordResetCreator", fields: [createdById], references: [id])
+  expiresAt   DateTime
+  usedAt      DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@index([createdById])
+}
+
+// ===== PHASE 2: ACCOUNTING =====

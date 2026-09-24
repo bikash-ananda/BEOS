@@ -1,0 +1,51 @@
+model Product {
+  id           String          @id @default(cuid())
+  sku          String          @unique
+  name         String
+  description  String?
+  category     String
+  unitPrice    Decimal
+  costPrice    Decimal
+  reorderLevel Int             @default(10)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  stocks       Stock[]
+  movements    StockMovement[]
+}
+
+model Warehouse {
+  id       String  @id @default(cuid())
+  code     String  @unique
+  name     String
+  location String
+  capacity Int
+  isActive Boolean @default(true)
+  stocks   Stock[]
+}
+
+model Stock {
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  warehouseId     String
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id])
+  quantity        Int
+  lastRestockDate DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([productId, warehouseId])
+}
+
+model StockMovement {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String // Inbound, Outbound, Adjustment
+  quantity  Int
+  reference String? // PO, SO, Inventory ID
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+// ===== PHASE 5: E-COMMERCE =====

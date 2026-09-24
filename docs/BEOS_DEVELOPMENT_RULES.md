@@ -14,36 +14,17 @@ Company type: Multidisciplinary Engineering and Technology Company
 
 Established: 2023 AD
 
-Employees: 50+
-
-Branches/offices: 3+
-
 ---
 
 # 1. Core Objective
 
-BEOS is the digital operating system of Bikash Engineering Pvt. Ltd.
+BEOS is the digital operating system of Bikash Engineering Pvt. Ltd. Its
+approved product scope is recorded in `PRODUCT.md`, and its verified delivery
+sequence is recorded in `IMPLEMENTATION_PLAN.md`.
 
-It will integrate:
-
-- Company communication
-- Meetings
-- Discussion
-- Project management
-- Customer management
-- Quotation
-- Sales
-- Billing
-- Inventory
-- Accounting
-- HR
-- Assets
-- Service/AMC
-- Engineering operations
-- Agriculture technology
-- AI
-- IoT
-- E-commerce
+Do not infer company size, office count, business domains, or production data
+from mockups and demo content. New operating domains must be explicitly approved
+before they are added to the product record or implementation plan.
 
 BEOS must be developed as one integrated platform rather than many disconnected applications.
 
@@ -81,7 +62,7 @@ Backend:
 
 Database:
 
-- PostgreSQL 18
+- PostgreSQL 16
 - Prisma ORM
 
 Package manager:
@@ -101,21 +82,21 @@ BEOS uses a modular-monolith architecture initially.
 Applications:
 
 apps/web
-    Public website
-    Employee workspace
-    Customer portal
+Public website
+Employee workspace
+Customer portal
 
 apps/api
-    Backend API
-    Authentication
-    Business logic
-    Database access
+Backend API
+Authentication
+Business logic
+Database access
 
 packages/
-    Shared code and types
+Shared code and types
 
 docs/
-    BEOS documentation
+BEOS documentation
 
 ---
 
@@ -356,37 +337,6 @@ Quotation
 - Service history
 - Depreciation
 - Warranty
-
-## Engineering
-
-- Electrical
-- Electronics
-- Civil
-- Software/IT
-- AI/IoT
-- Automation
-- Robotics
-
-## Agriculture Technology
-
-- Smart farming
-- Agriculture applications
-- Market management
-- Wildlife management
-- IoT systems
-- AI assistance
-- Government projects
-
-## E-commerce
-
-Online marketplace for:
-
-- Electronic components
-- Engineering equipment
-- IoT products
-- Automation products
-- Smart farming products
-- Home automation products
 
 ---
 

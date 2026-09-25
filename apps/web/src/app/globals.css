@@ -10,6 +10,7 @@
 @import "../styles/work-layout.css";
 @import "../styles/work-records.css";
 @import "../styles/work-forms.css";
+@import "../styles/mitra.css";
 
 :root {
   --paper: #f1eee4;

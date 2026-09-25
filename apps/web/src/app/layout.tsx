@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BEOS — Bikash Engineering Operating System",
+  title: "MITRA — Engineering that connects people and systems",
   description:
-    "Digital operating system for Bikash Engineering Pvt. Ltd., Pokhara, Nepal.",
+    "MITRA is an engineering and technology practice connecting people and systems.",
 };
 
 export default function RootLayout({

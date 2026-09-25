@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
-import { resolve } from "node:path";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: resolve(__dirname, "../.."),
+  output: "export",
+
+  images: {
+    unoptimized: true,
   },
+
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL ?? "http://localhost:3001";
+    const backendUrl =
+      process.env.BACKEND_URL ??
+      "https://bikashengineering.com.np/api-internal";
+
     return [
       {
         source: "/api/:path*",
